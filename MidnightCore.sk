@@ -1,8 +1,7 @@
 #######################################################################
 #
 # Midnight Core ALPHA-1.0.0
-# https://dsc.gg/midnightcore
-# 
+#
 # Created by koqel and bradleyw8_ and LLayered
 # 
 # Reccomended Addons:
@@ -13,7 +12,7 @@
 # Luck Perms
 #
 #######################################################################
-#Options (You Can Edit Theese!)
+#Options (You Can Edit These!)
 options: #Config
 	Version: ALPHA-1.0.0 #Dont Edit This
 	Prefix: &9Midnight&5Core &7» #Prefix of the skript
@@ -21,7 +20,8 @@ options: #Config
 	builderPermission: Midnight.Builder #Builder Permission
 	devPermission: Midnight.Dev #Developer Permission
 	adminPermission: Midnight.Admin #Admin Permission
-	permissionMessage: &cYou don't have the reqired permissions for this command! #No permission message
+	muteChatBypass: Midnight.Bypass.ChatMute #Mute Chat bypass permission
+	permissionMessage: &9Midnight&5Core &7» &cYou do not have the required permission to use this command! #No permission message
 	fileName: MidnightCore.sk #Name of the file
 	discordInvite: https://discord.gg/jDZJF8UUgE #Discord link
 	storeLink: YOUR STORE LINK HERE! #Webstore link
@@ -146,36 +146,68 @@ command /reload:
 	permission: {@adminPermission}
 	permission message: {@permissionMessage}
 	trigger:
-		make player execute command "/reload {@fileName}"
+		make player execute command "/sk reload {@fileName}"
 		send "&aReloaded &9MidNight&5Core"
+#ClearChat
+command /ClearChat:
+	aliases: /cc, /cchat, /chatclear
+	permission: {@adminPermission}
+	permission message: {@permissionMessage}
+	trigger:
+		loop 500 times
+		broadcast " "
+		stop
+		broadcast "&6Chat cleared by &b%player%"	
+#MuteChat
+command /MuteChat:
+	aliases: /mc, /mchat, /chatmute
+	permission: {@adminPermission}
+	permission message: {@permissionMessage}
+	trigger:
+		if {muteChat} is not set
+			set {muteChat} to true
+			broadcast "&6Chat was muted by &b%player%"
+			stop trigger
+		
+		if {muteChat} is set:
+			clear {muteChat}
+			broadcast "&6Chat was unmuted by &b%player%"
 
+on chat:
+	if {muteChat} is set:
+		if player has permission "{@muteChatBypass}":
+			stop trigger
+		else:
+			cancel event
+			send "&cChat is currently muted!" to player
+#Unban
 command /unban [<OfflinePlayer>]:
 	aliases: /pardon, /unb
-	permission: midnight.unban
-	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+	permission: {@adminPermission}
+	permission message: {@permissionMessage}
 	trigger:
     	unbanPlayer(arg-1)
 
-function unbanPlayer(P: player)
+function unbanPlayer(P: player):
 	make player execute command "pardon %{_P}%"
 	send "&aUnbanned %player's prefix% %{_P}%"
-
-function banPlayer(P: player, R: text, T: number)
-	kick %{_P}% for reason %{_R}%
-	ban %{_P}% for reason %{_R}% for %{_T}% days
-	broadcast "&c%player's prefix% %{_P}% &ehas been banned for &a%{_R}%"
-
+#Ban
 command /ban [<offline player>] [<text>] [<number>]:
 	aliases: /b
-	permission: midnight.ban
-	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+	permission: {@adminPermission}
+	permission message: {@permissionMessage}
 	trigger:
 		banPlayer(arg-1, arg-2, arg-3)
 
+function banPlayer(P: player, R: text, T: number):
+	kick %{_P}% for reason %{_R}%
+	ban %{_P}% for reason %{_R}% for %{_T}% days
+	broadcast "&c%player's prefix% %{_P}% &ehas been banned for &a%{_R}%"
+#Broadcast
 command /broadcast [<text>]:
 	aliases: /bc, /alert
-	permission: midnight.broadcast
-	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+	permission: {@adminPermission}
+	permission message: {@permissionMessage}
 	usage: &c/broadcast (message)
 	trigger:
       if arg-1 is not set:
@@ -209,8 +241,8 @@ function gamemode(p: player, gamemode: text):
 		
 command /gamemode [<text>] [<OfflinePlayer>]:
 	aliases: /gm
-	permission: midnight.gamemode
-	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+	permission: {@adminPermission}
+	permission message: {@permissionMessage}
 	trigger:
 		if arg 1 isn't set:
 			send "&7/gamemode &e<text> <player>"
@@ -223,76 +255,9 @@ command /gamemode [<text>] [<OfflinePlayer>]:
 
 command /core:
 	aliases: /midnight, /midnightcore, /coreinfo, /midnightinfo
-	permission: midnight.core
-	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+	permission: {@staffPermission}
+	permission message: {@permissionMessage}
 	trigger:
-		send "&9Midnight&5Core &7» &eThis server uses &9Midnight&5Core. You can find out more info by joining MidnightCore's Discord @ https://dsc.gg/midnightcore" to player
-
-options:
-	PermissionNeeded: Midnight.staff
-	PermissionError: &9Midnight&5Core &7 » &cYou do not have the required permission to use this command!
-	BroadcastNoReason: %player% has muted %arg 1%!
-	BroadcastWithReason: %player% has muted %arg 1% for %arg 2%
-	BroadcastUnmute: %player% has unmuted %arg 1%!
-	MuteMessage: &c&lYou're Muted!
-	UnmuteError: &c&lPlayer is not muted!
+		send "&9Midnight&5Core &7» &eThis server is running &9Midnight&5Core. You can find out more info by joining MidnightCore's Discord @ https://dsc.gg/midnightcore" to player
 
 
-
-# End of the CONFIGURATION!
-# Don't edit below if you don't know what you're doing!
-
-
-
-
-
-
-
-# CODE
-
-command /mute [<player>] [<text>]:
-	permission: midnight.mute
-	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
-	trigger:
-		if arg 1 is not set:
-			send "Please use format: /mute [PLAYER] [REASON]"
-		if arg 1 is set:
-			if {muted.%player-argument%} is false:
-				if arg 2 is not set:
-					set {muted.%player-argument%} to true
-					send "&a%arg 1% is now muted!" 
-					send "&c&lYou're now muted!" to player-argument
-					broadcast "{@BroadcastNoReason}"
-				if arg 2 is set:
-					set {muted.%player-argument%} to true
-					send "&a%arg 1% is now muted for %arg 2%!" 
-					send "&c&lYou're now muted for %arg 2%!" to player-argument
-					broadcast "{@BroadcastWithReason}"
-			if {muted.%player-argument%} is true:
-				message "&c&lPlayer Already Muted!"
-			
-
-
-on chat:
-	if {muted.%player%} is true:
-		cancel event
-		send "{@MuteMessage}"
-
-
-command /unmute [<player>]:
-	permission: midnight.unmute
-	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
-	trigger:
-		if arg 1 is not set:
-			send "Please use format: /unmute [PLAYER]"
-		if arg 1 is set:
-			if {muted.%player-argument%} is false:
-				send "{@UnmuteError}"
-	
-			else:
-				set {muted.%player-argument%} to false
-				send "&a%arg 1% is now unmuted!" 
-				send "&c&lYou're now unmuted!" to player-argument
-				broadcast "{@BroadcastUnmute}"
-		
-	
