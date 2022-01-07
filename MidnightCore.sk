@@ -228,3 +228,71 @@ command /core:
 	trigger:
 		send "&9Midnight&5Core &7» &eThis server uses &9Midnight&5Core. You can find out more info by joining MidnightCore's Discord @ https://dsc.gg/midnightcore" to player
 
+options:
+	PermissionNeeded: Midnight.staff
+	PermissionError: &9Midnight&5Core &7 » &cYou do not have the required permission to use this command!
+	BroadcastNoReason: %player% has muted %arg 1%!
+	BroadcastWithReason: %player% has muted %arg 1% for %arg 2%
+	BroadcastUnmute: %player% has unmuted %arg 1%!
+	MuteMessage: &c&lYou're Muted!
+	UnmuteError: &c&lPlayer is not muted!
+
+
+
+# End of the CONFIGURATION!
+# Don't edit below if you don't know what you're doing!
+
+
+
+
+
+
+
+# CODE
+
+command /mute [<player>] [<text>]:
+	permission: midnight.mute
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+	trigger:
+		if arg 1 is not set:
+			send "Please use format: /mute [PLAYER] [REASON]"
+		if arg 1 is set:
+			if {muted.%player-argument%} is false:
+				if arg 2 is not set:
+					set {muted.%player-argument%} to true
+					send "&a%arg 1% is now muted!" 
+					send "&c&lYou're now muted!" to player-argument
+					broadcast "{@BroadcastNoReason}"
+				if arg 2 is set:
+					set {muted.%player-argument%} to true
+					send "&a%arg 1% is now muted for %arg 2%!" 
+					send "&c&lYou're now muted for %arg 2%!" to player-argument
+					broadcast "{@BroadcastWithReason}"
+			if {muted.%player-argument%} is true:
+				message "&c&lPlayer Already Muted!"
+			
+
+
+on chat:
+	if {muted.%player%} is true:
+		cancel event
+		send "{@MuteMessage}"
+
+
+command /unmute [<player>]:
+	permission: midnight.unmute
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+	trigger:
+		if arg 1 is not set:
+			send "Please use format: /unmute [PLAYER]"
+		if arg 1 is set:
+			if {muted.%player-argument%} is false:
+				send "{@UnmuteError}"
+	
+			else:
+				set {muted.%player-argument%} to false
+				send "&a%arg 1% is now unmuted!" 
+				send "&c&lYou're now unmuted!" to player-argument
+				broadcast "{@BroadcastUnmute}"
+		
+	
