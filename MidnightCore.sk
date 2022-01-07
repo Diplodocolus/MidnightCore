@@ -1,0 +1,102 @@
+#######################################################################
+#
+# Midnight Core ALPHA-1.0.0
+#
+# Created by koqel and bradleyw8_ and LLayered
+# 
+#######################################################################
+#Options (You Can Edit Theese!)
+options:
+	Version: ALPHA-1.0.0 #Dont Edit This
+	Prefix: &9Midnight&5Core &7»
+	staffPermission: Midnight.Staff
+	builderPermission: Midnight.Builder
+	devPermission: Midnight.Dev
+	adminPermission: Midnight.Admin
+	permissionMessage: &cYou don't have the reqired permissions for this command!
+	discordInvite: https://discord.gg/jDZJF8UUgE
+	storeLink: YOUR STORE LINK HERE!
+
+#Main Code (DONT EDIT UNLESS YOU KNOW WHAT YOUR DOING!)
+#
+#StaffChat
+command /staffchat [<text>]:
+	aliases: /sc
+	permission: {@staffPermission}
+	permission message: {@permissionMessage}
+	usage: &c/Staffchat (Message)
+	trigger:
+		if arg-1 is not set:
+			send "&c/Staffchat (Message)" to player
+		else:
+			loop all players:
+				if loop-player has permission {@staffPermission}
+					send "&7[&eSC&7] &f%player%: &e%arg-1%" to loop-player
+#AdminChat
+command /adminchat [<text>]:
+	aliases: /ac
+	permission: {@adminPermission}
+	permission message: {@permissionMessage}
+	usage: &c/Adminchat (Message)
+	trigger:
+		if arg-1 is not set:
+			send "&c/Adminchat (Message)" to player
+		else:
+			loop all players:
+				if loop-player has permission "{@adminPermission}"
+					send "&7[&cAC&7] &f%player%: &c%arg-1%" to loop-player
+#BuilderChat
+command /builderchat [<text>]:
+	aliases: /cb
+	permission: {@builderPermission}
+	permission message: {@permissionMessage}
+	usage: &c/Builderchat (Message)
+	trigger:
+		if arg-1 is not set:
+			send "&c/Builderchat (Message)" to player
+		else:
+			loop all players:
+				if loop-player has permission "{@builderPermission}"
+					send "&7[&dBC&7] &f%player%: &d%arg-1%" to loop-player
+#DeveloperChat
+command /devchat [<text>]:
+	aliases: /cd
+	permission: {@devPermission}
+	permission message: {@permissionMessage}
+	usage: &c/Devchat (Message)
+	trigger:
+		if arg-1 is not set:
+			send "&c/Devchat (Message)" to player
+		else:
+			loop all players:
+				if loop-player has permission "{@devPermission}"
+					send "&7[&bDC&7] &f%player%: &b%arg-1%" to loop-player
+#DiscordCMD
+command /discord:
+	aliases: /dc
+	trigger:
+		send "{@discordInvite}" to player
+#StoreCMD
+command /store:
+	trigger:
+		send "{@storeLink}" to player
+#Report
+command /report [<player>] [<text>]:
+	cooldown: 10 seconds
+	cooldown message: &cPlease Wait 10 seconds in between reports. &7(This is to prevent spam!)
+	usage: &c/Report (Player) (Reason)
+	trigger:
+		if arg-1 is not set:
+			send "&c/Report (Player) (Reason)" to player
+		else if arg-2 is not set
+			send "&c/Report (Player) (Reason)" to player
+		else if arg-1 is set:
+			if arg-2 is set:
+				send "&aThanks For Your Report Staff Are Investigating!" to player
+				loop all players:
+					if loop-player has permission "{@staffPermission}":
+						send "&4REPORT" to loop-players
+						send "&a%player% &cReported &4%arg-1%" to loop-player
+						send "&4Reason: %arg-2%" to loop-player
+
+		
