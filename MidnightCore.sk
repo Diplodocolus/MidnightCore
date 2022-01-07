@@ -149,10 +149,6 @@ command /reload:
 		make player execute command "/reload {@fileName}"
 		send "&aReloaded &9MidNight&5Core"
 
-Options:
-	Permissions:
-	nopermission: &cYou currently don't have access to this permission!
-
 command /unban [<OfflinePlayer>]:
 	aliases: /pardon, /unb
 	permission: midnight.unban
