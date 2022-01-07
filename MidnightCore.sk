@@ -4,18 +4,30 @@
 #
 # Created by koqel and bradleyw8_ and LLayered
 # 
+# Reccomended Addons:
+# SkQuery
+# Skellet
+# SkRayFall
+# TuSKe
+# Luck Perms
+#
 #######################################################################
 #Options (You Can Edit Theese!)
-options:
+options: #Config
 	Version: ALPHA-1.0.0 #Dont Edit This
-	Prefix: &9Midnight&5Core &7»
-	staffPermission: Midnight.Staff
-	builderPermission: Midnight.Builder
-	devPermission: Midnight.Dev
-	adminPermission: Midnight.Admin
-	permissionMessage: &cYou don't have the reqired permissions for this command!
-	discordInvite: https://discord.gg/jDZJF8UUgE
-	storeLink: YOUR STORE LINK HERE!
+	Prefix: &9Midnight&5Core &7» #Prefix of the skript
+	staffPermission: Midnight.Staff #Staff Permission
+	builderPermission: Midnight.Builder #Builder Permission
+	devPermission: Midnight.Dev #Developer Permission
+	adminPermission: Midnight.Admin #Admin Permission
+	permissionMessage: &cYou don't have the reqired permissions for this command! #No permission message
+	fileName: MidnightCore.sk #Name of the file
+	discordInvite: https://discord.gg/jDZJF8UUgE #Discord link
+	storeLink: YOUR STORE LINK HERE! #Webstore link
+	joinMessageEnabled: true #Enable/Disable custom join messages
+	leaveMessageEnabled: true #Enable/Disable custom leave messages
+	joinMessage: &8[&a+&8] %player% #Custom Join Message
+	leaveMessage: &8[&4-&8] %player% #Custom Leave Message
 
 #Main Code (DONT EDIT UNLESS YOU KNOW WHAT YOUR DOING!)
 #
@@ -98,5 +110,40 @@ command /report [<player>] [<text>]:
 						send "&4REPORT" to loop-players
 						send "&a%player% &cReported &4%arg-1%" to loop-player
 						send "&4Reason: %arg-2%" to loop-player
-
-		
+#Message
+command /message [<player>] [<text>]:
+	usage: &c/Message (Player) (Message)
+	aliases: /msg, /pm, /dm, /pmsg
+	trigger:
+		if arg-1 is not set:
+			send "&c/Message (Player) (Message)" to player
+		else if arg-2 is not set:
+			send "&c/Message (Player) (Message)" to player
+		else if arg-1 is set:
+			if arg-2 is set:
+				send "&b%player% whispers: %arg-2%" to arg-1
+#LoadMSG
+on load:
+	send "&a--------------------------------------------" to console
+	send "&9Midnight&5Core v{@Version} has been enabled!" to console
+	send "&aCreated by bradleyw8_, koqel and LLayered" to console
+	send "&a-------------------------------------------" to console
+#Join Message
+on join:
+	if {@joinMessageEnabled} is "false":
+		stop
+	else if {@joinMessageEnabled} is "true":
+		broadcast "{@joinMessage}"
+#LeaveMessage
+on quit:
+	if {@leaveMessageEnabled} is "false":
+		stop
+	else if {@leaveMessageEnabled} is "true"
+		broadcast {@joinMessage}
+#ReloadCMD
+command /reload:
+	permission: {@adminPermission}
+	permission message: {@permissionMessage}
+	trigger:
+		make player execute command "/reload {@fileName}"
+		send "&aReloaded &9MidNight&5Core"
