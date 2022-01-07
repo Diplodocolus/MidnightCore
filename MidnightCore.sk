@@ -147,3 +147,87 @@ command /reload:
 	trigger:
 		make player execute command "/reload {@fileName}"
 		send "&aReloaded &9MidNight&5Core"
+
+Options:
+	Permissions:
+	nopermission: &cYou currently don't have access to this permission!
+
+command /unban [<OfflinePlayer>]:
+	aliases: /pardon, /unb
+	permission: midnight.unban
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+	trigger:
+    	unbanPlayer(arg-1)
+
+function unbanPlayer(P: player)
+	make player execute command "pardon %{_P}%"
+	send "&aUnbanned %player's prefix% %{_P}%"
+
+function banPlayer(P: player, R: text, T: number)
+	kick %{_P}% for reason %{_R}%
+	ban %{_P}% for reason %{_R}% for %{_T}% days
+	broadcast "&c%player's prefix% %{_P}% &ehas been banned for &a%{_R}%"
+
+command /ban [<offline player>] [<text>] [<number>]:
+	aliases: /b
+	permission: midnight.ban
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+	trigger:
+		banPlayer(arg-1, arg-2, arg-3)
+
+command /broadcast [<text>]:
+	aliases: /bc, /alert
+	permission: midnight.broadcast
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+	usage: &c/broadcast (message)
+	trigger:
+      if arg-1 is not set:
+        send "&9Midnight&5Core &7» &cThe broadcast message is not set!" to player
+      if arg-1 is set:
+        broadcast "&4&lALERT &7» %arg-1%"
+
+	permission: gamemode
+	s: "survival","s" or "0"
+	c: "creative","c" or "1"
+	a: "adventure","a" or "2"
+	sp: "spectator" or "3"
+	midnight.gamemode.*
+	midnight.gamemode
+	midnight.gamemode.other	
+
+function gamemode(p: player, gamemode: text):
+	if {_gamemode} is {@s}:
+		set gamemode of {_p} to survival
+		send "&7Your gamemode has been changed to &eSurvival&7!" to {_p}
+	if {_gamemode} is {@c}:
+		set gamemode of {_p} to creative
+		send "&7Your gamemode has been changed to &eCreative&7!" to {_p}
+	if {_gamemode} is {@a}:
+		set gamemode of {_p} to adventure
+		send "&7Your gamemode has been changed to &eAdventure&7!" to {_p}
+	if {_gamemode} is {@sp}:
+		set gamemode of {_p} to spectator
+		send "&7Your gamemode has been changed to &eSpectator&7!" to {_p}
+		
+		
+command /gamemode [<text>] [<OfflinePlayer>]:
+	aliases: /gm
+	permission: midnight.gamemode
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+	trigger:
+		if arg 1 isn't set:
+			send "&7/gamemode &e<text> <player>"
+		if player has permission "midnight.gamemode":
+			arg 2 isn't set:
+				gamemode(player, arg-1)
+		if player has permission "midnight.gamemode.other":
+			arg 2 is set:
+				gamemode(arg-2, arg-1)
+
+command /core:
+	aliases: /midnight, /midnightcore, /coreinfo, /midnightinfo
+	permission: midnight.core
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+	trigger:
+		send "&9Midnight&5Core &7» &eThis server uses &9Midnight&5Core. You can find out more info by joining MidnightCore's Discord @ https://dsc.gg/midnightcore" to player
+
