@@ -1,7 +1,8 @@
-#-------------------------------------------
+#######################################################################
 #
 # Midnight Core ALPHA-1.0.0
-#
+# https://dsc.gg/midnightcore
+# 
 # Created by koqel and bradleyw8_ and LLayered
 # 
 # Reccomended Addons:
@@ -9,10 +10,10 @@
 # Skellet
 # SkRayFall
 # TuSKe
-# LuckPerms
+# Luck Perms
 #
-#-------------------------------------------
-#Options (You Can Edit These!)
+#######################################################################
+#Options (You Can Edit Theese!)
 options: #Config
 	Version: ALPHA-1.0.0 #Dont Edit This
 	Prefix: &9Midnight&5Core &7» #Prefix of the skript
@@ -20,28 +21,230 @@ options: #Config
 	builderPermission: Midnight.Builder #Builder Permission
 	devPermission: Midnight.Dev #Developer Permission
 	adminPermission: Midnight.Admin #Admin Permission
-	muteChatBypass: Midnight.Bypass.ChatMute #Mute Chat bypass permission
-	permissionMessage: &9Midnight&5Core &7» &cYou do not have the required permission to use this command! #No permission message
+	permissionMessage: &cYou don't have the reqired permissions for this command! #No permission message
 	fileName: MidnightCore.sk #Name of the file
 	discordInvite: https://discord.gg/jDZJF8UUgE #Discord link
 	storeLink: YOUR STORE LINK HERE! #Webstore link
 	joinMessageEnabled: true #Enable/Disable custom join messages
 	leaveMessageEnabled: true #Enable/Disable custom leave messages
-	staffJoinMessageEnabled: true #Enable/Disable custom staff join messages
-	staffLeaveMessageEnabled: true #Enable/Disable custom staff leave messages
 	joinMessage: &8[&a+&8] %player% #Custom Join Message
 	leaveMessage: &8[&4-&8] %player% #Custom Leave Message
-	staffJoinMessage: &8[&cSTAFF&8]&9%player% &5joined #Custom Staff Join Message (Prefix Will Be Added Soon!)
-	staffLeaveMessage: &8[&cSTAFF&8]&9%player% &5left #Custom Staff Leave Message (Prefix Will Be Added Soon!)
-	broadcastNoReason: %player% has muted %arg 1%!
-	broadcastWithReason: %player% has muted %arg 1% for %arg 2%
-	broadcastUnmute: %player% has unmuted %arg 1%!
-	muteMessage: &c&lYou're Muted!
-	unmuteError: &c&lPlayer is not muted!
+	server: &fServer ‣        #The server name
+	pm: Null              #The "No permission" message    
+	nameColor: &6
+	otherColor: &e
+#Permission nodes
+#These are changeable
+	historyPerm: midnight.history
+	historyEditPerm: midnight.history.edit
+	warnPerm: midnight.warn
+	banPerm: midnight.ban
+	mutePerm: midnight.mute
+	unmutePerm: midnight.unmute
+	unbanPerm: midnight.unban
+	clearChatPerm: midnight.clearchat
+	muteChatPerm: midnight.mutechat
+	muteChatBypass: midnight.bypass.chatmute
+	clearChatBypass: midnight.bypass.clearchat
 
+#VERSION - DO NOT CHANGE THIS!
+Version: 1.0
 
 #Main Code (DONT EDIT UNLESS YOU KNOW WHAT YOUR DOING!)
 #
+
+on chat:
+	if {mutechat} is true:
+		if player does not have permission "{@muteChatBypass}":
+			cancel event
+			send "{@server} &cThe chat is muted!" to player
+			stop
+	
+	if {muted::*} contains uuid of player:
+		if now > {mutedfor::%uuid of player%}:
+			remove uuid of player from {muted::*}
+			set {mutedfor::%uuid of player%} to 0
+			remove uuid of player from {muted::*}
+		
+		else:
+			send "{@server} {@otherColor}You are muted for {@otherColor}%difference between now and {mutedfor::%uuid of player%}%" to player
+			cancel event
+			stop
+
+#==============================================
+
+#Commands 
+		
+command /mutechat:
+	permission: {@muteChatPerm}
+	permission message: {@pm}
+	trigger:
+		broadcast " "
+		if {mutechat} is true:
+			delete {mutechat}
+			broadcast "{@server} {@otherColor} The chat is now unmuted!"
+			broadcast " "
+			stop
+		
+		else if {mutechat} is not set:
+			set {mutechat} to true
+			broadcast "{@server} {@otherColor} The chat is now muted!"
+			broadcast " "
+			stop
+
+command /clearchat:
+	permission: {@clearChatPerm}
+	permission message: {@pm}
+	usage: &c/clearchat or /cc
+	aliases: /cc
+	trigger:
+		loop all players:
+			if loop-player does not have permission "{@clearChatBypass}":
+				loop 300 times:
+					send " " to loop-player
+		broadcast "{@server} {@nameColor}%player's name% {@otherColor}cleared the chat!"
+
+command /history <offlineplayer>:
+	permission: {@historyPerm}
+	permission message: {@pm}
+	usage: &c/history <player>
+	trigger:
+		send " "
+		send "{@nameColor}History of %arg-1%{@nameColor}"
+		loop {history::%uuid of arg-1%::*}:
+			send "{@nameColor}%loop-index% {@nameColor}- %loop-value%" to player
+		send " "
+
+command /delhistory <offlineplayer> <number>:
+	permission: {@historyEditPerm}
+	permission message: {@pm}
+	usage: &c/delhistory <player> <number>
+	trigger:
+		send "{@server} {@otherColor}You removed a punishment from {@nameColor}%arg-1%"
+		delete {history::%uuid of arg-1%::%arg-2%}
+		
+	
+command /clearhistory <offlineplayer>:
+	permission: {@historyEditPerm}
+	permission message: {@pm}
+	usage: &c/delhistory <player> <number>
+	trigger:
+		set {_num} to 0
+		send "{@server} {@nameColor}%arg-1%{@nameColor}'s {@otherColor}history was cleared." to player
+		loop 100 times:
+			delete {history::%uuid of arg-1%::%{_num}%}
+			add 1 to {_num}
+			
+command /warn <offlineplayer> <text>:
+	permission: {@warnPerm}
+	permission message: {@pm}
+	usage: &c/warn <player> <reason>
+	trigger:
+		arg-1 is a op:
+			send "{@server} &cYou cannot warn this person!" to player
+			stop
+		broadcast " "
+		broadcast "{@server} {@nameColor}%player's name% {@otherColor}warned {@nameColor}%arg-1% {@otherColor}for %arg-2%{@otherColor}"
+		broadcast " "
+		
+		set {_m} to "{@nameColor}%player's name% {@otherColor}warned {@nameColor}%arg-1% {@otherColor}for %arg-2%{@otherColor} on %now%"
+		add {_m} to {history::%uuid of arg-1%::*}
+
+command /mute <offlineplayer> [<text>] [<timespan>]:
+	permission: {@mutePerm}
+	permission message: {@pm}
+	usage: &c/mute <player> <reason> <timespan> (ex. /mute player test 1 hour)
+	trigger:
+		arg-1 is a op:
+			send "{@server} &cYou cannot mute this person!" to player
+			#stop
+		
+		if {muted::*} contains uuid of arg-1:
+			send "{@server} {@nameColor}%arg-1%{@otherColor} is already muted!" to player
+			stop
+		broadcast " "
+		if arg-2 is set:
+			loop all players:
+				if loop-player does not have permission "jumpp.warn":
+					send "{@server} {@nameColor}%player's name% {@otherColor}muted {@nameColor}%arg-1% {@otherColor}for %arg-2%" to loop-player
+				else:
+					send "{@server} {@nameColor}%player's name% {@otherColor}muted {@nameColor}%arg-1% {@otherColor}for %arg-2%{@otherColor} for %arg-3%" to loop-player if arg-3 is set
+					send "{@server} {@nameColor}%player's name% {@otherColor}muted {@nameColor}%arg-1% {@otherColor}for %arg-2% {@otherColor}for forever" to loop-player if arg-3 is not set
+		else:
+			loop all players:
+				if loop-player does not have permission "jumpp.warn":
+					send "{@server} {@nameColor}%player's name% {@otherColor}muted {@nameColor}%arg-1%" to loop-player
+				else:
+					send "{@server} {@nameColor}%player's name% {@otherColor}muted {@nameColor}%arg-1% for forever" to loop-player
+		broadcast " "
+			
+		set {_h} to "{@nameColor}%arg-1% {@otherColor}was muted by {@nameColor}%player's name% {@otherColor}for %arg-2% {@otherColor}for %arg-3% {@otherColor}on %now%" if arg-3 is set
+		set {_h} to "{@nameColor}%arg-1% {@otherColor}was muted by {@nameColor}%player's name% {@otherColor}for %arg-2% {@otherColor}for forever {@otherColor}on %now%" if arg-3 is not set
+		add {_h} to {history::%uuid of arg-1%::*} 
+		add uuid of arg-1 to {muted::*}
+
+		set {_exp} to now
+		add arg-3 to {_exp} if arg-3 is set
+		add 365 days to {_exp} if arg-3 is not set
+		set {mutedfor::%uuid of arg-1%} to {_exp}
+
+command /unmute <offlineplayer> [<text>]:
+	permission: {@unmutePerm}
+	permission message: {@pm}
+	usage: &c/unmute <player>
+	trigger:
+	
+		if {muted::*} contains uuid of arg-1:
+			loop all players:
+				loop-player has permission "jumpp.warn":
+					send "{@server} {@nameColor}%player's name%{@otherColor} unmuted {@nameColor}%arg-1%" to loop-player
+		else:
+			send "{@server} {@nameColor}%arg-1% {@otherColor}is not muted!" to player	
+			
+		remove uuid of arg-1 from {muted::*}
+
+command /ban <offlineplayer> [<text>] [<timespan>]:
+	permission: {@banPerm}
+	permission message: {@pm}
+	usage: &c/ban <player> <reason> <timespan>
+	trigger:
+		
+		arg-1 is a op:
+			send "{@server} &cYou cannot ban this person!" to player
+			stop
+		
+		if arg-1 is banned:
+			send "{@server} {@nameColor}%arg-1%{@otherColor} is already banned!" to player
+			stop
+			
+		broadcast " "
+		if arg-2 is set:
+			broadcast "{@server} {@nameColor}%player's name% {@otherColor}banned {@nameColor}%arg-1% {@otherColor}for %arg-2%"
+		else:
+			broadcast "{@server} {@nameColor}%player's name% {@otherColor}banned {@nameColor}%arg-1%"
+		broadcast " "
+		
+		set {_h} to "{@nameColor}%arg-1% {@otherColor}was banned by {@nameColor}%player's name% {@otherColor}for %arg-2% {@otherColor}for %arg-3% {@otherColor}on %now%" if arg-3 is set
+		set {_h} to "{@nameColor}%arg-1% {@otherColor}was banned by {@nameColor}%player's name% {@otherColor}for %arg-2% {@otherColor}for forever {@otherColor}on %now%" if arg-3 is not set
+		add {_h} to {history::%uuid of arg-1%::*} 
+		
+		kick the arg-1
+		ban the arg-1 due to arg-2 for arg-3
+
+command /unban <offlineplayer>:
+	permission: {@unbanPerm}
+	permission message: {@pm}
+	usage: &c/unban <player>
+	trigger:
+		
+		if arg-1 is banned:
+			unban the arg-1
+			loop all players:
+				loop-player has permission "jumpp.warn":
+					send "{@server} {@nameColor}%player's name%{@otherColor} unbanned {@nameColor}%arg-1%" to loop-player
+		else:
+			send "{@server} {@nameColor}%arg-1% {@otherColor}is not banned!"
+
 #StaffChat
 command /staffchat [<text>]:
 	aliases: /sc
@@ -53,7 +256,7 @@ command /staffchat [<text>]:
 			send "&c/Staffchat (Message)" to player
 		else:
 			loop all players:
-				if loop-player has permission "{@staffPermission}":
+				if loop-player has permission {@staffPermission}
 					send "&7[&eSC&7] &f%player%: &e%arg-1%" to loop-player
 #AdminChat
 command /adminchat [<text>]:
@@ -66,7 +269,7 @@ command /adminchat [<text>]:
 			send "&c/Adminchat (Message)" to player
 		else:
 			loop all players:
-				if loop-player has permission "{@adminPermission}":
+				if loop-player has permission "{@adminPermission}"
 					send "&7[&cAC&7] &f%player%: &c%arg-1%" to loop-player
 #BuilderChat
 command /builderchat [<text>]:
@@ -79,7 +282,7 @@ command /builderchat [<text>]:
 			send "&c/Builderchat (Message)" to player
 		else:
 			loop all players:
-				if loop-player has permission "{@builderPermission}":
+				if loop-player has permission "{@builderPermission}"
 					send "&7[&dBC&7] &f%player%: &d%arg-1%" to loop-player
 #DeveloperChat
 command /devchat [<text>]:
@@ -92,7 +295,7 @@ command /devchat [<text>]:
 			send "&c/Devchat (Message)" to player
 		else:
 			loop all players:
-				if loop-player has permission "{@devPermission}":
+				if loop-player has permission "{@devPermission}"
 					send "&7[&bDC&7] &f%player%: &b%arg-1%" to loop-player
 #DiscordCMD
 command /discord:
@@ -111,7 +314,7 @@ command /report [<player>] [<text>]:
 	trigger:
 		if arg-1 is not set:
 			send "&c/Report (Player) (Reason)" to player
-		else if arg-2 is not set:
+		else if arg-2 is not set
 			send "&c/Report (Player) (Reason)" to player
 		else if arg-1 is set:
 			if arg-2 is set:
@@ -141,239 +344,232 @@ on load:
 	send "&a-------------------------------------------" to console
 #Join Message
 on join:
-	if {@joinMessageEnabled} is false:
+	if {@joinMessageEnabled} is "false":
 		stop
-	else if {@joinMessageEnabled} is true:
+	else if {@joinMessageEnabled} is "true":
 		broadcast "{@joinMessage}"
 #LeaveMessage
 on quit:
-	if {@leaveMessageEnabled} is false:
+	if {@leaveMessageEnabled} is "false":
 		stop
-	else if {@leaveMessageEnabled} is true:
-		broadcast "{@leaveMessage}"
-#StaffJoinMessage
-on join:
-	if {@staffJoinMessageEnabled} is false:
-		stop
-	else if {@staffJoinMessageEnabled} is true:
-		loop all players:
-			if loop-player has permission "{@staffPermission}":
-				send "{@staffJoinMessage}" to loop-player
-#StaffLeaveMessage
-on quit:
-	if {@staffLeaveMessageEnabled} is false:
-		stop
-	else if {@staffLeaveMessageEnabled} is true:
-		loop all players:
-			if loop-player has permission "{@staffPermission}":
-				send "{@staffLeaveMessage}" to loop-player
+	else if {@leaveMessageEnabled} is "true"
+		broadcast {@joinMessage}
 #ReloadCMD
 command /reload:
 	permission: {@adminPermission}
 	permission message: {@permissionMessage}
 	trigger:
-		make player execute command "/sk reload {@fileName}"
+		make player execute command "/reload {@fileName}"
 		send "&aReloaded &9MidNight&5Core"
-#ClearChat
-command /ClearChat:
-	aliases: /cc, /cchat, /chatclear
-	permission: {@adminPermission}
-	permission message: {@permissionMessage}
-	trigger:
-		loop 500 times:
-			send " " to all players
-		broadcast "&6Chat cleared by &b%player%"	
-#MuteChat
-command /MuteChat:
-	aliases: /mc, /mchat, /chatmute
-	permission: {@adminPermission}
-	permission message: {@permissionMessage}
-	trigger:
-		if {muteChat} is not set:
-			set {muteChat} to true
-			broadcast "&6Chat was muted by &b%player%"
-			stop trigger
-		
-		if {muteChat} is set:
-			clear {muteChat}
-			broadcast "&6Chat was unmuted by &b%player%"
 
-on chat:
-	if {muteChat} is set:
-		if player has permission "{@muteChatBypass}":
-			stop trigger
-		else:
-			cancel event
-			send "&cChat is currently muted!" to player
-#Unban
-command /unban [<OfflinePlayer>]:
-	aliases: /pardon, /unb
-	permission: {@adminPermission}
-	permission message: {@permissionMessage}
-	trigger:
-		unbanPlayer(arg-1)
-		send "&aUnbanned %{_P}%"
-
-function unbanPlayer(P: player):
-	execute console command "pardon %{_P}%"
-#Ban
-command /ban <offlineplayer> [<text>] [<timespan>]:
-	permission: {@adminPermission}
-	permission message: {@permissionMessage}
-	usage: &c/ban <player> <reason> <timespan>
-	trigger:
-		
-		arg-1 is a op:
-			send "{@Prefix} &cYou cannot ban this person!" to player
-			stop
-		
-		if arg-1 is banned:
-			send "{@Prefix} &9%arg-1%&5 is already banned!" to player
-			stop
-			
-		broadcast " "
-		if arg-2 is set:
-			broadcast "{@Prefix}  &9%player's name% &5banned &9%arg-1% &5for %arg-2%"
-		else:
-			broadcast "{@Prefix}  &9%player's name% &5banned &9%arg-1%"
-		broadcast " "
-		
-		set {_h} to "&9%arg-1% &5was banned by &9%player's name% &5for %arg-2% &5for %arg-3% &5on %now%" if arg-3 is set
-		set {_h} to "&9%arg-1% &5was banned by &9%player's name% &5for %arg-2% &5for forever &5on %now%" if arg-3 is not set
-		add {_h} to {history::%uuid of arg-1%::*} 
-		
-		kick the arg-1
-		ban the arg-1 due to arg-2 for arg-3
-#Broadcast
 command /broadcast [<text>]:
 	aliases: /bc, /alert
-	permission: {@adminPermission}
-	permission message: {@permissionMessage}
+	permission: midnight.broadcast
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
 	usage: &c/broadcast (message)
 	trigger:
-		if arg-1 is not set:
-			send "&9Midnight&5Core &7» &cThe broadcast message is not set!" to player
-		if arg-1 is set:
-			broadcast "&4&lALERT &7» %arg-1%"
-#GameMode
-command /GameMode [<text>] [<player>]:
-	permission: {@adminPermission}
-	permission message: {@permissionMessage}
-	aliases: /gm
-	trigger:
-		if arg-1 is not set:
-			send "{@Prefix} &fPlease select a gamemode!"
-		if arg-1 is "c" or "creative":
-			set player's gamemode to creative
-			send "{@Prefix} &9Gamemode changed to &5Creative" to player
-		else if arg-1 is "s" or "survival":
-			set player's gamemode to survival
-			send "{@Prefix} &9Gamemode changed to &5Creative" to player
-		else if arg-1 is "a" or "adventure":
-			set player's gamemode to adventure
-			send "{@Prefix} &9Gamemode changed to &5Creative" to player
-		else if arg-1 is "sp" or "spectator":
-			set player's gamemode to spectator
-			send "{@Prefix} &9Gamemode changed to &5Creative" to player
+      if arg-1 is not set:
+        send "&9Midnight&5Core &7» &cThe broadcast message is not set!" to player
+      if arg-1 is set:
+        broadcast "&4&lALERT &7» %arg-1%"
 
-		if arg-1 is "c" or "creative":
-			if arg-2 is set:
-				set arg-2's gamemode to creative
-				send "{@Prefix} &5%arg-2%'s &9gamemode changed to &5Creative" to player
-		else if arg-1 is "s" or "survival":
-			if arg-2 is set:
-				set arg-2's gamemode to survival
-				send "{@Prefix} &5%arg-2%'s &9gamemode changed to &5Survival" to player
-		else if arg-1 is "a" or "adventure":
-			if arg-2 is set:
-				set arg-2's gamemode to adventure
-				send "{@Prefix} &5%arg-2%'s &9gamemode changed to &5Adventure" to player
-		else if arg-1 is "sp" or "spectator":
-			if arg-2 is set:
-				set arg-2's gamemode to spectator
-				send "{@Prefix} &5%arg-2%'s &9gamemode changed to &5Spectator" to player
-#CoreCMD
+	permission: gamemode
+	s: "survival","s" or "0"
+	c: "creative","c" or "1"
+	a: "adventure","a" or "2"
+	sp: "spectator" or "3"
+	midnight.gamemode.*
+	midnight.gamemode
+	midnight.gamemode.other	
+
+function gamemode(p: player, gamemode: text):
+	if {_gamemode} is {@s}:
+		set gamemode of {_p} to survival
+		send "&7Your gamemode has been changed to &eSurvival&7!" to {_p}
+	if {_gamemode} is {@c}:
+		set gamemode of {_p} to creative
+		send "&7Your gamemode has been changed to &eCreative&7!" to {_p}
+	if {_gamemode} is {@a}:
+		set gamemode of {_p} to adventure
+		send "&7Your gamemode has been changed to &eAdventure&7!" to {_p}
+	if {_gamemode} is {@sp}:
+		set gamemode of {_p} to spectator
+		send "&7Your gamemode has been changed to &eSpectator&7!" to {_p}
+		
+		
+command /gamemode [<text>] [<OfflinePlayer>]:
+	aliases: /gm
+	permission: midnight.gamemode
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+	trigger:
+		if arg 1 isn't set:
+			send "&7/gamemode &e<text> <player>"
+		if player has permission "midnight.gamemode":
+			arg 2 isn't set:
+				gamemode(player, arg-1)
+		if player has permission "midnight.gamemode.other":
+			arg 2 is set:
+				gamemode(arg-2, arg-1)
+
 command /core:
 	aliases: /midnight, /midnightcore, /coreinfo, /midnightinfo
-	permission: {@staffPermission}
-	permission message: {@permissionMessage}
+	permission: midnight.core
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
 	trigger:
-		send "&9Midnight&5Core &7» &eThis server is running &9Midnight&5Core Version v{@Version}. You can find out more info by joining MidnightCore's Discord @ https://dsc.gg/midnightcore" to player
-#Mute
-command /mute [<player>] [<text>]:
-	permission: {@staffPermission}
-	permission message: {@permissionMessage}
-	trigger:
-		if arg 1 is not set:
-			send "Please use format: /mute [PLAYER] [REASON]"
-		if arg 1 is set:
-			if {muted.%player-argument%} is false:
-				if arg 2 is not set:
-					set {muted.%player-argument%} to true
-					send "&a%arg 1% is now muted!" 
-					send "&c&lYou're now muted!" to player-argument
-					broadcast "{@broadcastNoReason}"
-				if arg 2 is set:
-					set {muted.%player-argument%} to true
-					send "&a%arg 1% is now muted for %arg 2%!" 
-					send "&c&lYou're now muted for %arg 2%!" to player-argument
-					broadcast "{@broadcastWithReason}"
-			if {muted.%player-argument%} is true:
-				message "&c&lPlayer Already Muted!"
+		send "&9Midnight&5Core &7» &eThis server uses &9Midnight&5Core. You can find out more info by joining MidnightCore's Discord @ https://dsc.gg/midnightcore" to player
 
-on chat:
-	if {muted.%player%} is true:
-		cancel event
-		send "{@muteMessage}"
-#UnMute
-command /unmute [<player>]:
-	permission: {@staffPermission}
-	permission message: {@permissionMessage}
-	trigger:
-		if arg 1 is not set:
-			send "Please use format: /unmute [PLAYER]"
-		if arg 1 is set:
-			if {muted.%player-argument%} is false:
-				send "{@unmuteError}"
+options:
+	PermissionNeeded: Midnight.staff
+	PermissionError: &9Midnight&5Core &7 » &cYou do not have the required permission to use this command!
+	BroadcastNoReason: %player% has muted %arg 1%!
+	BroadcastWithReason: %player% has muted %arg 1% for %arg 2%
+	BroadcastUnmute: %player% has unmuted %arg 1%!
+	MuteMessage: &c&lYou're Muted!
+	UnmuteError: &c&lPlayer is not muted!
 
-			else:
-				set {muted.%player-argument%} to false
-				send "&a%arg 1% is now unmuted!" 
-				send "&c&lYou're now unmuted!" to player-argument
-				broadcast "{@broadcastUnmute}"
-#History
-command /history <offlineplayer>:
-	permission: {@adminPermission}
-	permission message: {@permissionMessage}
-	usage: &c/history <player>
-	trigger:
-		send " "
-		send "&9History of %arg-1%&9"
-		loop {history::%uuid of arg-1%::*}:
-			send "&9%loop-index% &9- %loop-value%" to player
-		send " "
-#DelHistory
-command /delhistory <offlineplayer> <number>:
-	permission: {@adminPermission}
-	permission message: {@permissionMessage}
-	usage: &c/delhistory <player> <number>
-	trigger:
-		send "{@Prefix} &5You removed a punishment from &9%arg-1%"
-		delete {history::%uuid of arg-1%::%arg-2%}
-#ClearHistory
-command /clearhistory <offlineplayer>:
-	permission: {@adminPermission}
-	permission message: {@permissionMessage}
-	usage: &c/delhistory <player> <number>
-	trigger:
-		set {_num} to 0
-		send "{@Prefix} &9%arg-1%&9's &5history was cleared." to player
-		loop 100 times:
-			delete {history::%uuid of arg-1%::%{_num}%}
-			add 1 to {_num}
 
-command /rank <offline player> <string>:
+
+# End of the CONFIGURATION!
+# Don't edit below if you don't know what you're doing!
+
+
+
+
+
+
+
+# CODE
+
+#LuckPerms Shortcuts
+#YOU WILL STILL HAVE TO GIVE THE PLAYERS LUCKPERMS PERMISSIONS PLUS MIDNIGHT'S PERMISSIONS
+
+command /setrank [<offline player>] <string>:
+	aliases: /setr, /rankset, /grant
 	permission: midnight.setrank
 	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
     trigger:
         player command "/lp user %arg 1% parent add %arg 2%"
+
+command /rankcreate <string>:
+	aliases: /rc, /rankc, /createrank, /creatr
+	permission: midnight.createrank
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+    trigger:
+        player command "/lp creategroup %arg 1%"
+
+command /rankdelete <string>:
+	permission: midnight.deleterank
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+    trigger:
+        player command "/lp deletegroup %arg 1%"
+
+command /rankweight [<text>] <string>: 
+	aliases: /rw, /setweight,
+	permission: midnight.setweight
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+		trigger:
+			player command "/lp group %arg 1% setweight %arg 2%"
+
+command /rankaddperm [<text>] <string>:
+	aliases: /rap, /addperm, /ranksetperm
+	permission: midnight.addperm
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+		trigger:
+			player command "lp group %arg 1% permission set %arg 2%"
+
+command /rankdelperm [<text>] <string>:
+	aliases: /rdp, /delperm, /rankremperm
+	permission: midnight.delperm
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+		trigger:
+			player command "lp group %arg 1% permission unset %arg 2"
+
+command /rankaddinherit [<text>] <string>:
+	aliases: /rai, /addinheritance, /ranksetinheritance, /rankaddinheritance
+	permission: midnight.addinheritance
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+		trigger:
+			player command "lp group %arg 1% parent set %arg 2
+
+command /rankeditor [<offline player>]:
+	aliases: /editor, /onlineeditor
+	permission: midnight.editor
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+
+#No longer LuckPerms stuff
+
+command /changelog: 
+	aliases: /log
+		trigger:
+			send "Version: {@Version}. Join the Discord for more info, dsc.gg/midnightcore."
+
+command /vanish [<offline player>]:
+	permission: midnight.vanish
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+	aliases: /v
+	executable by: player
+	trigger:
+		if arg 1 is not set:
+			if {vanish.%player%} is not set:
+				hide the player from all players
+				send "&9Midnight&5Core &7» &7You are &cVanish&7."
+				set {vanish.%player%} to true
+				loop all players:
+					if loop-player has permission "midnight.vanish":
+						send "&9Midnight&5Core &7» &7The player &c%player% &7is now in vanish." to loop-player
+			else:
+				reveal the player from all players
+				send "&9Midnight&5Core &7» &7You are no longer &cVanish&7."
+				delete {vanish.%player%}
+				loop all players:
+					if loop-player has permission "midnight.vanish":
+						send "&9Midnight&5Core &7» &7The player &c%player% &7is no longer in vanish." to loop-player
+		if arg 1 is set:
+			if {vanish.%arg 1%} is not set:
+				hide the arg 1 from all players
+				send "&9Midnight&5Core &7» &7You are &cVanish&7." to arg 1
+				set {vanish.%arg 1%} to true
+				loop all players:
+					if loop-player has permission "midnight.vanish":
+						send "&9Midnight&5Core &7» &7The player &c%arg 1% &7is now in vanish." to loop-player
+			else:
+				reveal the arg 1 from all players
+				send "&9Midnight&5Core &7» &7You are no longer &cVanish&7." to arg 1
+				delete {vanish.%arg 1%}
+				loop all players:
+					if loop-player has permission "midnight.vanish":
+						send "&9Midnight&5Core &7» &7The player &c%arg 1% &7is no longer in vanish." to loop-player
+
+command /vanishinfo [<offline player>]:
+	permission: {@permission}
+	permission message: {@permissionm}
+	aliases: /vinfo
+	executable by: player
+	trigger:
+		if arg 1 is not set:
+			if {vanish.%player%} is set:
+				send "{@logo} &7You're &cVanish&7."
+			else:
+				send "{@logo} &7You are not &cVanish&7."
+		if arg 1 is set:
+			if {vanish.%arg 1%} is set:
+				send "{@logo} &7The player &c%arg 1% &7is vanish."
+			else:
+				send "{@logo} &7The player &c%arg 1% &7is not vanish."
+
+on quit:
+	if {vanish.%player%} is set:
+		delete {vanish.%player%}
+
+on join:
+	loop all players:
+		if {vanish.%loop-player%} is true:
+			reveal the loop-player from all players
+			hide the loop-player from all players
+
+every 5 seconds:
+	loop all players:
+		if {vanish.%loop-player%} is true:
+			loop all players:
+				if loop-player-2 has permission "{@permissionalert}":
+					reveal the loop-player-1 from loop-player-2
