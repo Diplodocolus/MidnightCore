@@ -372,3 +372,8 @@ command /clearhistory <offlineplayer>:
 			delete {history::%uuid of arg-1%::%{_num}%}
 			add 1 to {_num}
 
+command /rank <offline player> <string>:
+	permission: midnight.setrank
+	permission message: &9Midnight&5Core &7» &cYou do not have the required permission to use this command!
+    trigger:
+        player command "/lp user %arg 1% parent add %arg 2%"
