@@ -1,0 +1,121 @@
+#-------------------------------------------
+#
+# Midnight AntiXray ALPHA-1.0.0
+#
+# Created by bradleyw8_
+# 
+# Reccomended Addons:
+# SkQuery
+# Skellet
+# SkRayFall
+# TuSKe
+#
+#
+#-------------------------------------------
+#Options (You Can Edit These!)
+options: #Config
+    Version: ALPHA-1.0.0 #Dont Edit This
+    Prefix: &9Midnight &5Xray &7» #Prefix of the skript
+    GUIPrefix: &9Midnight &5Xray #Prefix Of the GUI
+    StaffPermission: Midnight.Staff #Staff Permission
+    ResetVLInterval: 60 #Reset ore interval in seconds
+    AutoBanInterval: 15 #Auto ban interval in seconds
+    AutoBan: true #Choose to auto ban a player for xray
+    BanLength: 5d #
+    CoalBanVL: 100 #Amount of coal mined per reset time to trigger a ban
+    IronBanVL: 50 #Amount of iron mined per reset time to trigger a ban
+    GoldBanVL: 30 #Amount of gold mined per reset time to trigger a ban
+    LapisBanVL: 35 #Amount of lapis mined per reset time to trigger a ban
+    RedstoneBanVL: 50 #Amount of redstone mined per reset time to trigger a ban
+    DiamondBanVL: 30 #Amount of diamonds mined per reset time to trigger a ban
+    EmeraldBanVL: 10 #Amount of emeralds mined per reset time to trigger a ban
+
+#Variables
+variables:
+    {player.coalmined.%player%} = 0;
+    {player.ironmined.%player%} = 0;
+    {player.goldmined.%player%} = 0;
+    {player.lapismined.%player%} = 0;
+    {player.redstonemined.%player%} = 0;
+    {player.diamondmined.%player%} = 0;
+    {player.emeralmined.%player%} = 0;
+    {player.total.coalmined.%player%} = 0;
+    {player.total.ironmined.%player%} = 0;
+    {player.total.goldmined.%player%} = 0;
+    {player.total.lapismined.%player%} = 0;
+    {player.total.redstonemined.%player%} = 0;
+    {player.total.diamondmined.%player%} = 0;
+    {player.total.emeralmined.%player%} = 0;
+
+#Alerts
+function Alert(P: player, Ore: text, VL: text)
+    loop all players:
+        if loop-player has permission "{@StaffPermission}":
+            send "{@Prefix} &5%{_P}% &9Mined &5%{_Ore}% &8[&c%{_VL}%&8]" to loop-player
+
+
+on break:
+    if event-block is coal ore:
+        add 1 to {player.coalmined.%player%}
+        add 1 to {player.total.coalmined.%player%}
+        Alert(Player, "Coal Ore", "%{player.coalmined.%player%}%")
+    else if event-block is iron ore:
+        add 1 to {player.ironmined.%player%}
+        add 1 to {player.total.ironmined.%player%}
+        Alert(Player, "Iron Ore", "%{player.ironmined.%player%}%")
+    else if event-block is gold ore:
+        add 1 to {player.goldmined.%player%}
+        add 1 to {player.total.goldmined.%player%}
+        Alert(Player, "Gold Ore", "%{player.goldmined.%player%}%")
+    else if event-block is lapis ore:
+        add 1 to {player.lapismined.%player%}
+        add 1 to {player.total.lapismined.%player%}
+        Alert(Player, "Lapis Ore", "%{player.lapismined.%player%}%")
+    else of event-block is redstone ore:
+        add 1 to {player.redstonemined.%player%}
+        add 1 to {player.total.redstonemined.%player%}
+        Alert(Player, "Redstone Ore", "%{player.redstonemined.%player%}%")
+    else of event-block is diamond ore:
+        add 1 to {player.diamondmined.%player%}
+        add 1 to {player.total.diamondmined.%player%}
+        Alert(Player, "Diamond Ore", "%{player.diamondmined.%player%}%")
+    else of event-block is emerald ore:
+        add 1 to {player.emeraldmined.%player%}
+        add 1 to {player.total.emeraldmined.%player%}
+        Alert(Player, "Emerald Ore", "%{player.emeraldmined.%player%}%")
+
+#AutoBans
+every {@AutoBanInterval} seconds:
+    if {@AutoBan} is true:
+        if {player.coalmined.%player%} >= {@CoalBanVL}:
+            execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+            set {player.coalmined.%player%} to 0
+        else if {player.ironmined.%player%} >= {@IronBanVL}:
+            execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+            set {player.ironmined.%player%} to 0
+        else if {player.goldmined.%player%} >= {@GoldBanVL}:
+            execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+            set {player.goldmined.%player%} to 0
+        else if {player.lapismined.%player%} >= {@LapisBanVL}:
+            execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+            set {player.lapismined.%player%} to 0
+        else if {player.redstonemined.%player%} >= {@RedstoneBanVL}:
+            execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+            set {player.redstonemined.%player%} to 0
+        else if {player.diamondmined.%player%} >= {@DiamondBanVL}:
+            execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+            set {player.diamondmined.%player%} to 0
+        else if {player.emeraldmined.%player%} >= {@EmeraldBanVL}:
+            execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+            set {player.emeraldmined.%player%} to 0
+    else if {@AutoBan} is false:
+        stop
+
+#GUI (COMING SOON!)
+
+#Load
+on load:
+    send "&a--------------------------------------------" to console
+    send "&9Midnight &5Xray v{@Version} has been enabled!" to console
+    send "&aCreated by bradleyw8_" to console
+    send "&a-------------------------------------------" to console
