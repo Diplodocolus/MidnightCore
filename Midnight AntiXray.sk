@@ -14,108 +14,193 @@
 #-------------------------------------------
 #Options (You Can Edit These!)
 options: #Config
-    Version: ALPHA-1.0.0 #Dont Edit This
-    Prefix: &9Midnight &5Xray &7» #Prefix of the skript
-    GUIPrefix: &9Midnight &5Xray #Prefix Of the GUI
-    StaffPermission: Midnight.Staff #Staff Permission
-    ResetVLInterval: 60 #Reset ore interval in seconds
-    AutoBanInterval: 15 #Auto ban interval in seconds
-    AutoBan: true #Choose to auto ban a player for xray
-    BanLength: 5d #
-    CoalBanVL: 100 #Amount of coal mined per reset time to trigger a ban
-    IronBanVL: 50 #Amount of iron mined per reset time to trigger a ban
-    GoldBanVL: 30 #Amount of gold mined per reset time to trigger a ban
-    LapisBanVL: 35 #Amount of lapis mined per reset time to trigger a ban
-    RedstoneBanVL: 50 #Amount of redstone mined per reset time to trigger a ban
-    DiamondBanVL: 30 #Amount of diamonds mined per reset time to trigger a ban
-    EmeraldBanVL: 10 #Amount of emeralds mined per reset time to trigger a ban
+	Version: ALPHA-1.0.0 #Dont Edit This
+	Prefix: &9Midnight &5Xray &7» #Prefix of the skript
+	GUIPrefix: &9Midnight &5Xray #Prefix Of the GUI
+	StaffPermission: Midnight.Staff #Staff Permission
+	PermissionMessage: &9Midnight &5Xray &7» &cYou do not have the required permission to use this command! #No permission message
+	ResetVLInterval: 60 #Reset ore interval in seconds
+	AutoBanInterval: 15 #Auto ban interval in seconds
+	AutoBan: true #Choose to auto ban a player for xray (Currently Disabled)
+	BanLength: 5d #Self explanatory
+	CoalBanVL: 100 #Amount of coal mined per reset time to trigger a ban
+	IronBanVL: 50 #Amount of iron mined per reset time to trigger a ban
+	GoldBanVL: 30 #Amount of gold mined per reset time to trigger a ban
+	LapisBanVL: 35 #Amount of lapis mined per reset time to trigger a ban
+	RedstoneBanVL: 50 #Amount of redstone mined per reset time to trigger a ban
+	DiamondBanVL: 30 #Amount of diamonds mined per reset time to trigger a ban
+	EmeraldBanVL: 10 #Amount of emeralds mined per reset time to trigger a ban
+
+#Alerts
+function Alert(P: player, Ore: text, VL: string):
+	loop all players:
+		if loop-player has permission "{@StaffPermission}":
+			if {midnight.%loop-player%.alerts} is set:
+				send "{@Prefix} &5%{_P}% &9Mined &5%{_Ore}% &8[&c%{_VL}%&8]" to loop-player
+			else:
+				stop
 
 #Variables
 variables:
-    {player.coalmined.%player%} = 0;
-    {player.ironmined.%player%} = 0;
-    {player.goldmined.%player%} = 0;
-    {player.lapismined.%player%} = 0;
-    {player.redstonemined.%player%} = 0;
-    {player.diamondmined.%player%} = 0;
-    {player.emeralmined.%player%} = 0;
-    {player.total.coalmined.%player%} = 0;
-    {player.total.ironmined.%player%} = 0;
-    {player.total.goldmined.%player%} = 0;
-    {player.total.lapismined.%player%} = 0;
-    {player.total.redstonemined.%player%} = 0;
-    {player.total.diamondmined.%player%} = 0;
-    {player.total.emeralmined.%player%} = 0;
-
-#Alerts
-function Alert(P: player, Ore: text, VL: text)
-    loop all players:
-        if loop-player has permission "{@StaffPermission}":
-            send "{@Prefix} &5%{_P}% &9Mined &5%{_Ore}% &8[&c%{_VL}%&8]" to loop-player
-
+	{coalmined.%player%} = 0
+	{ironmined.%player%} = 0
+	{goldmined.%player%} = 0
+	{lapismined.%player%} = 0
+	{redstonemined.%player%} = 0
+	{diamondmined.%player%} = 0
+	{emeralmined.%player%} = 0
+	{netheritemined.%player%} = 0
+	{total.coalmined.%player%} = 0
+	{total.ironmined.%player%} = 0
+	{total.goldmined.%player%} = 0
+	{total.lapismined.%player%} = 0
+	{total.redstonemined.%player%} = 0
+	{total.diamondmined.%player%} = 0
+	{total.emeralmined.%player%} = 0
+	{netheritemined.total.%player%} = 0
 
 on break:
-    if event-block is coal ore:
-        add 1 to {player.coalmined.%player%}
-        add 1 to {player.total.coalmined.%player%}
-        Alert(Player, "Coal Ore", "%{player.coalmined.%player%}%")
-    else if event-block is iron ore:
-        add 1 to {player.ironmined.%player%}
-        add 1 to {player.total.ironmined.%player%}
-        Alert(Player, "Iron Ore", "%{player.ironmined.%player%}%")
-    else if event-block is gold ore:
-        add 1 to {player.goldmined.%player%}
-        add 1 to {player.total.goldmined.%player%}
-        Alert(Player, "Gold Ore", "%{player.goldmined.%player%}%")
-    else if event-block is lapis ore:
-        add 1 to {player.lapismined.%player%}
-        add 1 to {player.total.lapismined.%player%}
-        Alert(Player, "Lapis Ore", "%{player.lapismined.%player%}%")
-    else of event-block is redstone ore:
-        add 1 to {player.redstonemined.%player%}
-        add 1 to {player.total.redstonemined.%player%}
-        Alert(Player, "Redstone Ore", "%{player.redstonemined.%player%}%")
-    else of event-block is diamond ore:
-        add 1 to {player.diamondmined.%player%}
-        add 1 to {player.total.diamondmined.%player%}
-        Alert(Player, "Diamond Ore", "%{player.diamondmined.%player%}%")
-    else of event-block is emerald ore:
-        add 1 to {player.emeraldmined.%player%}
-        add 1 to {player.total.emeraldmined.%player%}
-        Alert(Player, "Emerald Ore", "%{player.emeraldmined.%player%}%")
+	if event-block is coal ore:
+		add 1 to {coalmined.%player%}
+		add 1 to {total.coalmined.%player%}
+		Alert(Player, "Coal Ore", "%{coalmined.%player%}%")
+	else if event-block is iron ore:
+		add 1 to {ironmined.%player%}
+		add 1 to {total.ironmined.%player%}
+		Alert(Player, "Iron Ore", "%{ironmined.%player%}%")
+	else if event-block is gold ore:
+		add 1 to {goldmined.%player%}
+		add 1 to {total.goldmined.%player%}
+		Alert(Player, "Gold Ore", "%{goldmined.%player%}%")
+	else if event-block is lapis ore:
+		add 1 to {lapismined.%player%}
+		add 1 to {total.lapismined.%player%}
+		Alert(Player, "Lapis Ore", "%{lapismined.%player%}%")
+	else if event-block is redstone ore:
+		add 1 to {redstonemined.%player%}
+		add 1 to {total.redstonemined.%player%}
+		Alert(Player, "Redstone Ore", "%{redstonemined.%player%}%")
+	else if event-block is diamond ore:
+		add 1 to {diamondmined.%player%}
+		add 1 to {total.diamondmined.%player%}
+		Alert(Player, "Diamond Ore", "%{diamondmined.%player%}%")
+	else if event-block is emerald ore:
+		add 1 to {emeraldmined.%player%}
+		add 1 to {total.emeraldmined.%player%}
+		Alert(Player, "Emerald Ore", "%{emeraldmined.%player%}%")
+	else if event-block is ancient debris:
+		add 1 to {netheritemined.%player%}
+		add 1 to {netheritemined.total.%player%}
+		Alert(Player, "Netherite", "%{netheritemined.%player%}%")
+	else if event-block is deepslate coal ore:
+		add 1 to {coalmined.%player%}
+		add 1 to {coalmined.total.%player%}
+		Alert(Player, "Coal Ore", "%{coalmined.%player%}%")
+	else if event-block is deepslate iron ore:
+		add 1 to {ironmined.%player%}
+		add 1 to {ironmined.total.%player%}
+		Alert(Player, "Iron Ore", "%{ironmined.%player%}%")
+	else if event-block is deepslate gold ore:
+		add 1 to {goldmined.%player%}
+		add 1 to {goldmined.total.%player%}
+		Alert(Player, "Gold Ore", "%{goldmined.%player%}%")
+	else if event-block is deepslate lapis ore:
+		add 1 to {lapismined.%player%}
+		add 1 to {lapismined.total.%player%}
+		Alert(Player, "Lapis Ore", "%{lapismined.%player%}%")
+	else if event-block is deepslate redstone ore:
+		add 1 to {redstonemined.%player%}
+		add 1 to {redstonemined.total.%player%}
+		Alert(Player, "Redsone Ore", "%{redstonemined.%player%}%")
+	else if event-block is deepslate diamond ore:
+		add 1 to {diamondmined.%player%}
+		add 1 to {diamondmined.total.%player%}
+		Alert(Player, "Diamond Ore", "%{diamondmined.%player%}%")
+	else if event-block is deepslate emerald ore:
+		add 1 to {emeraldmined.%player%}
+		add 1 to {emeraldmined.total.%player%}
+		Alert(Player, "Emerald Ore", "%{emeraldmined.%player%}%")
+	
+	
 
 #AutoBans
-every {@AutoBanInterval} seconds:
-    if {@AutoBan} is true:
-        if {player.coalmined.%player%} >= {@CoalBanVL}:
-            execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
-            set {player.coalmined.%player%} to 0
-        else if {player.ironmined.%player%} >= {@IronBanVL}:
-            execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
-            set {player.ironmined.%player%} to 0
-        else if {player.goldmined.%player%} >= {@GoldBanVL}:
-            execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
-            set {player.goldmined.%player%} to 0
-        else if {player.lapismined.%player%} >= {@LapisBanVL}:
-            execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
-            set {player.lapismined.%player%} to 0
-        else if {player.redstonemined.%player%} >= {@RedstoneBanVL}:
-            execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
-            set {player.redstonemined.%player%} to 0
-        else if {player.diamondmined.%player%} >= {@DiamondBanVL}:
-            execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
-            set {player.diamondmined.%player%} to 0
-        else if {player.emeraldmined.%player%} >= {@EmeraldBanVL}:
-            execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
-            set {player.emeraldmined.%player%} to 0
-    else if {@AutoBan} is false:
-        stop
+#every {@AutoBanInterval} seconds:
+#	if {@AutoBan} is true:
+#		if {coalmined.%player%} >= {@CoalBanVL}:
+#			execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+#		if {ironmined.%player%} >= {@IronBanVL}:
+#			execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+#		if {goldmined.%player%} >= {@GoldBanVL}:
+#			execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"		if {lapismined.%player%} >= {@LapisBanVL}:
+#			execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+#		if {redstonemined.%player%} >= {@RedstoneBanVL}:
+#			execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+#		if {diamondmined.%player%} >= {@DiamondBanVL}:
+#			execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+#		if {emeraldmined.%player%} >= {@EmeraldBanVL}:
+#			execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+#	else if {@AutoBan} is false:
+#		stop
 
-#GUI (COMING SOON!)
+on join:
+	set {coalmined.%player%} to 0
+	set {ironmined.%player%} to 0
+	set {goldmined.%player%} to 0
+	set {lapismined.%player%} to 0
+	set {redstonemined.%player%} to 0
+	set {diamondmined.%player%} to 0
+	set {emeralmined.%player%} to 0
+	set {netheritemined.%player%} to 0
+
+on quit:
+	set {coalmined.%player%} to 0
+	set {ironmined.%player%} to 0
+	set {goldmined.%player%} to 0
+	set {lapismined.%player%} to 0
+	set {redstonemined.%player%} to 0
+	set {diamondmined.%player%} to 0
+	set {emeralmined.%player%} to 0
+	set {netheritemined.%player%} to 0
+
+#every 1 minute:
+#	set {coalmined.%player%} to 0
+#	set {ironmined.%player%} to 0
+#	set {lapismined.%player%} to 0
+#	set {redstonemined.%player%} to 0
+#	set {diamondmined.%player%} to 0
+#	set {emeralmined.%player%} to 0
+#	loop all players:
+#		if loop-player has permission "{@StaffPermission}":
+#			send "{@Prefix} &aCleared ore violations!" to loop-player
+
+#Command
+command /Midnight [<text>]:
+	permission: {@StaffPermission}
+	permission message: {@PermissionMessage}
+	aliases: /mn
+	trigger:
+		if arg-1 is "alerts":
+			if {midnight.%player%.alerts} is not set: 
+				set {midnight.%player%.alerts} to false 
+				send "{@Prefix} &7You will see alerts now."	
+			else:
+				delete {midnight.%player%.alerts} 
+				send "{@Prefix} &7Alerts disabled."
+
+		if arg-1 is "gui":
+			send "{@Prefix} &aComing Soon!" to player
+
+		if arg-1 is "info":
+			send "&a&m--------------------------------------------" to player
+			send "&9Midnight &5Xray v{@Version}" to player
+			send "&aCreated by bradleyw8_" to player
+			send "&a&m-------------------------------------------" to player
+
+
 
 #Load
 on load:
-    send "&a--------------------------------------------" to console
-    send "&9Midnight &5Xray v{@Version} has been enabled!" to console
-    send "&aCreated by bradleyw8_" to console
-    send "&a-------------------------------------------" to console
+	send "&a--------------------------------------------" to console
+	send "&9Midnight &5Xray v{@Version} has been enabled!" to console
+	send "&aCreated by bradleyw8_" to console
+	send "&a-------------------------------------------" to console
