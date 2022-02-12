@@ -7,4 +7,5 @@ Support discord: https://discord.gg/fnNCXaQd3s
 
 Midnight Plugins:
 Midnight AntiX-Ray: https://www.spigotmc.org/resources/midnight-anti-xray.99767/
+
 Midnight Core: https://www.spigotmc.org/resources/midnight-core-skript.99954/
