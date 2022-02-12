@@ -2,19 +2,19 @@
 #
 # Midnight Core ALPHA-1.0.0
 #
-# Created by koqel and bradleyw8_ and LLayered
+# Created by koqel and bradleyw8_
 # 
 # Reccomended Addons:
 # SkQuery
 # Skellet
 # SkRayFall
 # TuSKe
-# Luck Perms
+# LuckPerms
 #
 #-------------------------------------------
 #Options (You Can Edit These!)
 options: #Config
-	Version: ALPHA-1.0.0 #Dont Edit This
+	Version: ALPHA-1.0.0 #Dont Change This
 	Prefix: &9Midnight&5Core &7» #Prefix of the skript
 	staffPermission: Midnight.Staff #Staff Permission
 	builderPermission: Midnight.Builder #Builder Permission
@@ -495,4 +495,3 @@ command /ad:
 	trigger:
 		send "<suggest command: {@adMessage}>&5&lCLICK ME!<reset>" to player
 #End Of Current Code
-			
