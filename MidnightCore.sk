@@ -24,11 +24,12 @@ options: #Config
 	permissionMessage: &9Midnight&5Core &7» &cYou do not have the required permission to use this command! #No permission message
 	fileName: MidnightCore.sk #Name of the file
 	discordInvite: https://discord.gg/jDZJF8UUgE #Discord link
+	adMessage: /ad YOUR MINEHUT AD HERE #Helps with minehut advertisements
 	storeLink: YOUR STORE LINK HERE! #Webstore link
 	joinMessageEnabled: true #Enable/Disable custom join messages
 	leaveMessageEnabled: true #Enable/Disable custom leave messages
-	staffJoinMessageEnabled: true #Enable/Disable custom staff join messages
-	staffLeaveMessageEnabled: true #Enable/Disable custom staff leave messages
+	staffJoinMessageEnabled: false #Enable/Disable custom staff join messages (BETA)
+	staffLeaveMessageEnabled: false #Enable/Disable custom staff leave messages (BETA)
 	joinMessage: &8[&a+&8] %player% #Custom Join Message
 	leaveMessage: &8[&4-&8] %player% #Custom Leave Message
 	staffJoinMessage: &8[&cSTAFF&8]&9%player% &5joined #Custom Staff Join Message (Prefix Will Be Added Soon!)
@@ -38,7 +39,37 @@ options: #Config
 	broadcastUnmute: %player% has unmuted %arg 1%! #UnMute Reason Broadcast
 	muteMessage: &c&lYou're Muted! #Mute Message
 	unmuteError: &c&lPlayer is not muted! #Mute Error
+	#Scoreboard options
+	toggleScoreboard: true #Enable/Disable Scoreboard (Requires SKRayFall)
+	sbName: &9MidNight&5Core
+	sbIP: YOUR SERVERS IP
+	#Custom Chat Options
+	enableChat: true #DISABLED
+	chatFormatRank: %player's prefix% &7%player's name%: %message% #Chat for people with a rank
 
+#ScoreBoard (You can edit the parts in "")
+every 1 second:
+	loop all players:
+		if {@toggleScoreboard} is false:
+			stop
+		else if {@toggleScoreboard} is true:
+			set {_online} to number of all players
+			wipe loop-player's sidebar
+			set name of sidebar of loop-player to "{@sbName}" #Name Of Scoreboard
+			set score "&7&m----------------------" in sidebar of loop-player to 9
+			set score "&5&lPLAYER: &9%loop-player%" in sidebar of loop-player to 8
+			set score "" in sidebar of loop-player to 7
+			set score "&5&lONLINE PLAYERS: &9%{_online}%" in sidebar of loop-player to 6
+			set score "" in sidebar of loop-player to 5
+			set score "&5&lPING: &9%ping of loop-player%" in sidebar of loop-player to 4
+			set score "" in sidebar of loop-player to 3
+			set score "{@sbIP}" in sidebar of loop-player to 2
+			set score "&7&m----------------------" in sidebar of loop-player to 1
+
+#Chat
+#on chat:
+#	if {@enableChat} is true:
+#		set the chat format to "{@chatFormatRank}"
 
 #Main Code (DONT EDIT UNLESS YOU KNOW WHAT YOUR DOING!)
 #
@@ -98,7 +129,7 @@ command /devchat [<text>]:
 command /discord:
 	aliases: /dc
 	trigger:
-		send "{@discordInvite}" to player
+		send "<link:{@discordInvite}>&5&lCLICK ME!<reset>" to player
 #StoreCMD
 command /store:
 	trigger:
@@ -211,12 +242,14 @@ command /unban [<OfflinePlayer>]:
 	permission: {@adminPermission}
 	permission message: {@permissionMessage}
 	trigger:
-		unbanPlayer(arg-1)
-		send "&aUnbanned %{_P}%"
-		log "%player's name% unbanned %arg-1% on %now%" to "plugins/MidNightCore/Logs.yml"
-
-function unbanPlayer(P: player):
-	execute console command "pardon %{_P}%"
+		if arg-1 is banned:
+			unban the arg-1
+			loop all players:
+				if loop-player has permission "{@staffPermission}":
+					send "{@Prefix} &9%player's name% &5unbanned &9%arg-1%"
+					log "%player's name% unbanned %arg-1% on %now%" to "plugins/MidNightCore/Logs.yml"
+		else:
+			message "{@Prefix} &9%arg-1% &5is not banned!"
 #Ban
 command /ban <offlineplayer> [<text>] [<timespan>]:
 	permission: {@adminPermission}
@@ -232,12 +265,26 @@ command /ban <offlineplayer> [<text>] [<timespan>]:
 			send "{@Prefix} &9%arg-1%&5 is already banned!" to player
 			stop
 			
-		broadcast " "
 		if arg-2 is set:
-			broadcast "{@Prefix}  &9%player's name% &5banned &9%arg-1% &5for %arg-2%"
-		else:
-			broadcast "{@Prefix}  &9%player's name% &5banned &9%arg-1%"
-		broadcast " "
+			if arg-3 is set:
+				broadcast " "
+				broadcast "{@Prefix} &9%player's name% &5banned &9%arg-1% &5for &9%arg-2% &5for &9%arg-3%"
+				broadcast " "
+			else:
+				broadcast " "
+				broadcast "{@Prefix} &9%player's name% &5banned &9%arg-1% &5for &9%arg-2%"
+				broadcast " "
+		if arg-2 is not set:
+			if arg-3 is set:
+				broadcast " "
+				broadcast "{@Prefix} &9%player's name% &5banned &9%arg-1% &5for &9%arg-3%"
+				broadcast " "
+			else:
+				broadcast " "
+				broadcast "{@Prefix} &9%player's name% &5banned &9%arg-1%"
+				broadcast " "
+			
+		
 		
 		set {_h} to "&9%arg-1% &5was banned by &9%player's name% &5for %arg-2% &5for %arg-3% &5on %now%" if arg-3 is set
 		set {_h} to "&9%arg-1% &5was banned by &9%player's name% &5for %arg-2% &5for forever &5on %now%" if arg-3 is not set
@@ -435,13 +482,17 @@ command /kick [<player>] [<text>]:
 		else:
 			if arg-2 is not set:
 				kick arg-1
-			else
-				kick arg-1 due to "%arg-2%"
+			else:
+				kick arg-1 due to arg-2
 
-	set {_h} to "&9%arg-1% &5was kicked by &9%player's name% &5for %arg-2% &5for %arg-3% &5on %now%" if arg-2 is set
-	set {_h} to "&9%arg-1% &5was kicked by &9%player's name% &5on %now% &7(No Reason Specified!)" if arg-2 is not set
-	add {_h} to {history::%uuid of arg-1%::*} 
-	log "%player's name% kicked %arg-1% for %arg-2% on %now%" to "plugins/MidNightCore/Logs.yml" if arg-2 is set
-	log "%player's name% kicked %arg-1% on %now% (No Reason Specified!)" to "plugins/MidNightCore/Logs.yml" if arg-2 is not set
+		set {_h} to "&9%arg-1% &5was kicked by &9%player's name% &5for %arg-2% &5on %now%" if arg-2 is set
+		set {_h} to "&9%arg-1% &5was kicked by &9%player's name% &5on %now% &7(No Reason Specified!)" if arg-2 is not set
+		add {_h} to {history::%uuid of arg-1%::*} 
+		log "%player's name% kicked %arg-1% for %arg-2% on %now%" to "plugins/MidNightCore/Logs.yml" if arg-2 is set
+		log "%player's name% kicked %arg-1% on %now% (No Reason Specified!)" to "plugins/MidNightCore/Logs.yml" if arg-2 is not set
+#AdCMD
+command /ad:
+	trigger:
+		send "<suggest command: {@adMessage}>&5&lCLICK ME!<reset>" to player
 #End Of Current Code
 			
