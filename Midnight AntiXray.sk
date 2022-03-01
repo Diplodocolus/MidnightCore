@@ -1,42 +1,48 @@
 #-------------------------------------------
 #
-# Midnight AntiXray ALPHA-1.0.0
+# Midnight AntiXray v1.1
 #
 # Created by bradleyw8_
 # 
 # Reccomended Addons:
-# SkQuery
-# Skellet
+# Skript
+# 1.16+: https://github.com/SkriptLang/Skript/releases
+# SkUtils
+# 1.16+: https://forums.skunity.com/resources/skutilities.26/
 # SkRayFall
-# TuSKe
+# 1.16+: https://sk.rayfall.net/
+#
+#
 #
 #
 #-------------------------------------------
 #Options (You Can Edit These!)
-options: #Config
-	Version: ALPHA-1.0.0 #Dont Edit This
-	Prefix: &9Midnight &5Xray &7» #Prefix of the skript
-	GUIPrefix: &9Midnight &5Xray #Prefix Of the GUI
-	StaffPermission: Midnight.Staff #Staff Permission
-	PermissionMessage: &9Midnight &5Xray &7» &cYou do not have the required permission to use this command! #No permission message
-	ResetVLInterval: 60 #Reset ore interval in seconds
-	AutoBanInterval: 15 #Auto ban interval in seconds
-	AutoBan: true #Choose to auto ban a player for xray (Currently Disabled)
-	BanLength: 5d #Self explanatory
-	CoalBanVL: 100 #Amount of coal mined per reset time to trigger a ban
-	IronBanVL: 50 #Amount of iron mined per reset time to trigger a ban
-	GoldBanVL: 30 #Amount of gold mined per reset time to trigger a ban
-	LapisBanVL: 35 #Amount of lapis mined per reset time to trigger a ban
-	RedstoneBanVL: 50 #Amount of redstone mined per reset time to trigger a ban
-	DiamondBanVL: 30 #Amount of diamonds mined per reset time to trigger a ban
-	EmeraldBanVL: 10 #Amount of emeralds mined per reset time to trigger a ban
+options: # <- Config
+	Version: 1.1 # <- Dont Edit This
+	APILink: https://pastebin.com/raw/0bksB6Ti # <- DO NOT CHANGE THIS, IT IS REQUIRED FOR AUTO UPDATE
+	Prefix: &9Midnight &5Xray &7» # <- Prefix of the skript
+	GUIPrefix: &9Midnight &5Xray # <- Prefix Of the GUI
+	StaffPermission: Midnight.Staff #S <- taff Permission
+	PermissionMessage: &9Midnight &5Xray &7» &cYou do not have the required permission to use this command! # <- No permission message
+	CheckForUpdates: true # <- Automatically Checks For Updates
+	ResetVLInterval: 60 # <- Reset ore interval in seconds
+	AutoBanInterval: 15 # <- Auto ban interval in seconds
+	AutoBan: true # <- Choose to auto ban a player for xray
+	BanLength: 5d # <- Self explanatory
+	CoalBanVL: 100 # <- Amount of coal mined per reset time to trigger a ban
+	IronBanVL: 50 # <- Amount of iron mined per reset time to trigger a ban
+	GoldBanVL: 30 # <- Amount of gold mined per reset time to trigger a ban
+	LapisBanVL: 35 # <- Amount of lapis mined per reset time to trigger a ban
+	RedstoneBanVL: 50 # <- Amount of redstone mined per reset time to trigger a ban
+	DiamondBanVL: 30 # <- Amount of diamonds mined per reset time to trigger a ban
+	EmeraldBanVL: 10 # <- Amount of emeralds mined per reset time to trigger a ban
 
 #Alerts
 function Alert(P: player, Ore: text, VL: string):
 	loop all players:
 		if loop-player has permission "{@StaffPermission}":
 			if {midnight.%loop-player%.alerts} is set:
-				send "{@Prefix} &5%{_P}% &9Mined &5%{_Ore}% &8[&c%{_VL}%&8]" to loop-player
+				send formatted "<tooltip:&6&l%{_P}%'s Logs%nl%&7&lVL: &c%{_VL}%%nl%&7&lRecent Ore: &c%{_Ore}%%nl%&5&lClick to teleport><cmd:/tp %{_P}%>{@Prefix} &5%{_P}% &9Mined &5%{_Ore}% &8[&c%{_VL}%&8]" to loop-player
 			else:
 				stop
 
@@ -59,6 +65,7 @@ variables:
 	{total.emeralmined.%player%} = 0
 	{netheritemined.total.%player%} = 0
 
+#Main Code
 on break:
 	if event-block is coal ore:
 		add 1 to {coalmined.%player%}
@@ -124,24 +131,26 @@ on break:
 	
 
 #AutoBans
-#every {@AutoBanInterval} seconds:
-#	if {@AutoBan} is true:
-#		if {coalmined.%player%} >= {@CoalBanVL}:
-#			execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
-#		if {ironmined.%player%} >= {@IronBanVL}:
-#			execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
-#		if {goldmined.%player%} >= {@GoldBanVL}:
-#			execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"		if {lapismined.%player%} >= {@LapisBanVL}:
-#			execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
-#		if {redstonemined.%player%} >= {@RedstoneBanVL}:
-#			execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
-#		if {diamondmined.%player%} >= {@DiamondBanVL}:
-#			execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
-#		if {emeraldmined.%player%} >= {@EmeraldBanVL}:
-#			execute console command "tempban %player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
-#	else if {@AutoBan} is false:
-#		stop
-
+every {@AutoBanInterval} seconds:
+	if {@AutoBan} is true:
+		loop all players:
+			if {coalmined.%loop-player%} >= {@CoalBanVL}:
+				execute console command "tempban %loop-player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+			if {ironmined.%loop-player%} >= {@IronBanVL}:
+				execute console command "tempban %loop-player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+			if {goldmined.%loop-player%} >= {@GoldBanVL}:
+				execute console command "tempban %loop-player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"	
+			if {lapismined.%loop-player%} >= {@LapisBanVL}:
+				execute console command "tempban %loop-player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+			if {redstonemined.%loop-player%} >= {@RedstoneBanVL}:
+				execute console command "tempban %loop-player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+			if {diamondmined.%loop-player%} >= {@DiamondBanVL}:
+				execute console command "tempban %loop-player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+			if {emeraldmined.%loop-player%} >= {@EmeraldBanVL}:
+				execute console command "tempban %loop-player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+	else if {@AutoBan} is false:
+		stop
+#Reset VL
 on join:
 	set {coalmined.%player%} to 0
 	set {ironmined.%player%} to 0
@@ -162,16 +171,16 @@ on quit:
 	set {emeralmined.%player%} to 0
 	set {netheritemined.%player%} to 0
 
-#every 1 minute:
-#	set {coalmined.%player%} to 0
-#	set {ironmined.%player%} to 0
-#	set {lapismined.%player%} to 0
-#	set {redstonemined.%player%} to 0
-#	set {diamondmined.%player%} to 0
-#	set {emeralmined.%player%} to 0
-#	loop all players:
-#		if loop-player has permission "{@StaffPermission}":
-#			send "{@Prefix} &aCleared ore violations!" to loop-player
+every {@ResetVLInterval} minutes:
+	loop all players:
+		set {coalmined.%loop-player%} to 0
+		set {ironmined.%loop-player%} to 0
+		set {lapismined.%loop-player%} to 0
+		set {redstonemined.%loop-player%} to 0
+		set {diamondmined.%loop-player%} to 0
+		set {emeralmined.%loop-player%} to 0
+		if loop-player has permission "{@StaffPermission}":
+			send "{@Prefix} &aCleared ore violations!" to loop-player
 
 #Command
 command /Midnight [<text>]:
@@ -195,6 +204,18 @@ command /Midnight [<text>]:
 			send "&9Midnight &5Xray v{@Version}" to player
 			send "&aCreated by bradleyw8_" to player
 			send "&a&m-------------------------------------------" to player
+		
+		if arg-1 is "reload":
+			execute console command "sk reload %script%"
+			send "{@Prefix} &aReloaded!" to player
+
+		if arg-1 is not set:
+			send formatted "&a&m----<tooltip:https://www.spigotmc.org/resources/midnight-anti-xray.99767/><link:https://www.spigotmc.org/resources/midnight-anti-xray.99767/>&7[&9Midnight &5Xray&7]<reset>&a&m----&7[&9{@Version}&7]&a&m----" to player
+			send "&a&l/Midnight alerts &8(Toggles Xray Alerts)" to player
+			send "&a&l/Midnight gui &8(Coming soon)" to player
+			send "&a&l/Midnight info &8(Shows plugin info)" to player
+			send "&a&l/Midnight reload &8(Reloads the script)" to player 
+			send formatted "&a&m----<tooltip:https://www.spigotmc.org/resources/midnight-anti-xray.99767/><link:https://www.spigotmc.org/resources/midnight-anti-xray.99767/>&7[&9Midnight &5Xray&7]<reset>&a&m----&7[&9{@Version}&7]&a&m----" to player
 
 
 
@@ -204,3 +225,22 @@ on load:
 	send "&9Midnight &5Xray v{@Version} has been enabled!" to console
 	send "&aCreated by bradleyw8_" to console
 	send "&a-------------------------------------------" to console
+
+#Auto Updater
+on join:
+	if player is op:
+		if {@CheckForUpdates} is true:
+			set {_latestVer} to line 1 from url "{@APILink}"
+			if {_latestVer} is not "{@Version}":
+				loop all players:
+					if loop-player has permission "{@StaffPermission}":
+						send "&a&m----------------------------" to loop-player
+						send "&9Midnight &5Xray &fhas found an update" to loop-player
+						send "<link:https://www.spigotmc.org/resources/midnight-anti-xray.99767/>&c[Click Here to download it]<reset>" to loop-player
+						send "&a&m----------------------------" to loop-player
+			if {_latestVer} is "{@APILink}":
+				loop all players:
+					if loop-player has permission "{@StaffPermission}":
+						send "{@Prefix} &aNo new updates found" to loop-player
+		else if {@CheckForUpdates} is false:
+			stop
