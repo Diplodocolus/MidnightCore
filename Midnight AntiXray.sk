@@ -18,8 +18,8 @@
 #-------------------------------------------
 #Options (You Can Edit These!)
 options: # <- Config
-	Version: 1.1 # <- Dont Edit This
-	APILink: https://pastebin.com/raw/0bksB6Ti # <- DO NOT CHANGE THIS, IT IS REQUIRED FOR AUTO UPDATE
+	Version: 1.2 # <- Dont Edit This
+	APILink: https://raw.githubusercontent.com/Diplodocolus/MidnightCore/Master/APIVer.ver # <- DO NOT CHANGE THIS, IT IS REQUIRED FOR AUTO UPDATE
 	Prefix: &9Midnight &5Xray &7» # <- Prefix of the skript
 	GUIPrefix: &9Midnight &5Xray # <- Prefix Of the GUI
 	StaffPermission: Midnight.Staff #S <- taff Permission
@@ -221,7 +221,7 @@ command /Midnight [<text>]:
 
 #Load
 on load:
-	send "&a--------------------------------------------" to console
+	send "&a-------------------------------------------" to console
 	send "&9Midnight &5Xray v{@Version} has been enabled!" to console
 	send "&aCreated by bradleyw8_" to console
 	send "&a-------------------------------------------" to console
@@ -230,7 +230,7 @@ on load:
 on join:
 	if player is op:
 		if {@CheckForUpdates} is true:
-			set {_latestVer} to line 1 from url "{@APILink}"
+			set {_latestVer} to line 2 from url "{@APILink}"
 			if {_latestVer} is not "{@Version}":
 				loop all players:
 					if loop-player has permission "{@StaffPermission}":
