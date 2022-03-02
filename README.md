@@ -5,10 +5,10 @@ MidnightCore is a Minecraft Skript core with tons of features! We're still devel
 [Support discord](https://discord.gg/fnNCXaQd3s)
 
 
-#Midnight Plugins:
+## Midnight Plugins
 [Midnight AntiX-Ray](https://www.spigotmc.org/resources/midnight-anti-xray.99767/)
 
 [Midnight Core](https://www.spigotmc.org/resources/midnight-core-skript.99954/)
 
-#License
+## License
 [MIT](https://opensource.org/licenses/MIT)
