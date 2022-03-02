@@ -1,44 +1,56 @@
 #-------------------------------------------
 #
-# Midnight Core ALPHA-1.0.0
+# Midnight Core 1.2
 #
-# Created by koqel, bradleyw8_, and Rynx
+# Created by koqel and bradleyw8_ and LLayered
 # 
-# Reccomended Addons:
-# SkQuery
-# Skellet
+# Reccomended Addons (Some Addons Will support 1.8.8+):
+# Skript
+# 1.16+: https://github.com/SkriptLang/Skript/releases
+# SkUtils
+# 1.16+: https://forums.skunity.com/resources/skutilities.26/
 # SkRayFall
-# TuSKe
-# LuckPerms
+# 1.16+: https://sk.rayfall.net/
+# SkQuery
+# 1.16+: https://www.spigotmc.org/resources/skquery-1-13-1-18.36631/
+# Skellet
+# 1.16+: https://www.spigotmc.org/resources/skript-java-addon-skellett.34361/
+# Luck Perms
+# 1.16+: https://www.spigotmc.org/resources/luckperms.28140/
+#
+#
+# 
 #
 #-------------------------------------------
 #Options (You Can Edit These!)
 options: #Config
-	Version: ALPHA-1.0.0 #Dont Change This
-	Prefix: &9Midnight&5Core &7» #Prefix of the skript
-	staffPermission: Midnight.Staff #Staff Permission
-	builderPermission: Midnight.Builder #Builder Permission
-	devPermission: Midnight.Dev #Developer Permission
-	adminPermission: Midnight.Admin #Admin Permission
-	muteChatBypass: Midnight.Bypass.ChatMute #Mute Chat bypass permission
-	permissionMessage: &9Midnight&5Core &7» &cYou do not have the required permission to use this command! #No permission message
-	fileName: MidnightCore.sk #Name of the file
-	discordInvite: https://discord.gg/jDZJF8UUgE #Discord link
-	adMessage: /ad YOUR MINEHUT AD HERE #Helps with minehut advertisements
-	storeLink: YOUR STORE LINK HERE! #Webstore link
-	joinMessageEnabled: true #Enable/Disable custom join messages
-	leaveMessageEnabled: true #Enable/Disable custom leave messages
-	staffJoinMessageEnabled: false #Enable/Disable custom staff join messages (BETA)
-	staffLeaveMessageEnabled: false #Enable/Disable custom staff leave messages (BETA)
-	joinMessage: &8[&a+&8] %player% #Custom Join Message
-	leaveMessage: &8[&4-&8] %player% #Custom Leave Message
-	staffJoinMessage: &8[&cSTAFF&8]&9%player% &5joined #Custom Staff Join Message (Prefix Will Be Added Soon!)
-	staffLeaveMessage: &8[&cSTAFF&8]&9%player% &5left #Custom Staff Leave Message (Prefix Will Be Added Soon!)
-	broadcastNoReason: %player% has muted %arg 1%! #Mute No Reason Broadcast
-	broadcastWithReason: %player% has muted %arg 1% for %arg 2% #Mute Reason Broadcast
-	broadcastUnmute: %player% has unmuted %arg 1%! #UnMute Reason Broadcast
-	muteMessage: &c&lYou're Muted! #Mute Message
-	unmuteError: &c&lPlayer is not muted! #Mute Error
+	Version: 1.2 # <- Dont Edit This
+	Prefix: &9Midnight&5Core &7» # <- Prefix of the skript
+	APILink: https://raw.githubusercontent.com/Diplodocolus/MidnightCore/Master/APIVer.ver # <- DO NOT CHANGE THIS, IT IS REQUIRED FOR AUTO UPDATE
+	CheckForUpdates: true # <- Automatically Checks For Updates
+	staffPermission: Midnight.Staff # <- Staff Permission
+	builderPermission: Midnight.Builder # <- Builder Permission
+	devPermission: Midnight.Dev # <- Developer Permission
+	adminPermission: Midnight.Admin # <- Admin Permission
+	muteChatBypass: Midnight.Bypass.ChatMute # <- Mute Chat bypass permission
+	permissionMessage: &9Midnight&5Core &7» &cYou do not have the required permission to use this command! # <- No permission message
+	fileName: MidnightCore.sk # <- Name of the file
+	discordInvite: https://discord.gg/jDZJF8UUgE # <- Discord link
+	adMessage: /ad YOUR MINEHUT AD HERE # <- Helps with minehut advertisements
+	storeLink: YOUR STORE LINK HERE! # <- Webstore link
+	joinMessageEnabled: true # <- Enable/Disable custom join messages
+	leaveMessageEnabled: true # <- Enable/Disable custom leave messages
+	staffJoinMessageEnabled: false # <- Enable/Disable custom staff join messages (BETA)
+	staffLeaveMessageEnabled: false # <- Enable/Disable custom staff leave messages (BETA)
+	joinMessage: &8[&a+&8] %player% # <- Custom Join Message
+	leaveMessage: &8[&4-&8] %player% # <- Custom Leave Message
+	staffJoinMessage: &8[&cSTAFF&8]&9%player% &5joined # <- Custom Staff Join Message (Prefix Will Be Added Soon!)
+	staffLeaveMessage: &8[&cSTAFF&8]&9%player% &5left # <- Custom Staff Leave Message (Prefix Will Be Added Soon!)
+	broadcastNoReason: %player% has muted %arg 1%! # <- Mute No Reason Broadcast
+	broadcastWithReason: %player% has muted %arg 1% for %arg 2% # <- Mute Reason Broadcast
+	broadcastUnmute: %player% has unmuted %arg 1%! # <- UnMute Reason Broadcast
+	muteMessage: &c&lYou're Muted! # <- Mute Message
+	unmuteError: &c&lPlayer is not muted! # <- Mute Error
 	#Scoreboard options
 	toggleScoreboard: true #Enable/Disable Scoreboard (Requires SKRayFall)
 	sbName: &9MidNight&5Core
@@ -493,5 +505,24 @@ command /kick [<player>] [<text>]:
 #AdCMD
 command /ad:
 	trigger:
-		send "<suggest command: {@adMessage}>&5&lCLICK ME!<reset>" to player
+		send "<suggest command:{@adMessage}>&5&lCLICK ME!<reset>" to player
+#Auto Updater
+on join:
+	if player is op:
+		if {@CheckForUpdates} is true:
+			set {_latestVer} to line 4 from url "{@APILink}"
+			if {_latestVer} is not "{@Version}":
+				loop all players:
+					if loop-player has permission "{@StaffPermission}":
+						send "&a&m----------------------------" to loop-player
+						send "&9Midnight &5Core &fhas found an update" to loop-player
+						send "<link:https://www.spigotmc.org/resources/midnight-core-skript.99954/>&c[Click Here to download it]<reset>" to loop-player
+						send "&a&m----------------------------" to loop-player
+			if {_latestVer} is "{@APILink}":
+				loop all players:
+					if loop-player has permission "{@StaffPermission}":
+						send "{@Prefix} &aNo new updates found" to loop-player
+		else if {@CheckForUpdates} is false:
+			stop
 #End Of Current Code
+			
