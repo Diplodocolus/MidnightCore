@@ -1,6 +1,6 @@
 #-------------------------------------------
 #
-# Midnight AntiXray v1.1
+# Midnight AntiXray v1.3
 #
 # Created by bradleyw8_
 # 
@@ -18,14 +18,14 @@
 #-------------------------------------------
 #Options (You Can Edit These!)
 options: # <- Config
-	Version: 1.2 # <- Dont Edit This
+	Version: 1.3 # <- Dont Edit This
 	APILink: https://raw.githubusercontent.com/Diplodocolus/MidnightCore/Master/APIVer.ver # <- DO NOT CHANGE THIS, IT IS REQUIRED FOR AUTO UPDATE
 	Prefix: &9Midnight &5Xray &7» # <- Prefix of the skript
 	GUIPrefix: &9Midnight &5Xray # <- Prefix Of the GUI
 	StaffPermission: Midnight.Staff #S <- taff Permission
 	PermissionMessage: &9Midnight &5Xray &7» &cYou do not have the required permission to use this command! # <- No permission message
 	CheckForUpdates: true # <- Automatically Checks For Updates
-	ResetVLInterval: 60 # <- Reset ore interval in seconds
+	ResetVLInterval: 60 # <- Reset ore interval in Minutes
 	AutoBanInterval: 15 # <- Auto ban interval in seconds
 	AutoBan: true # <- Choose to auto ban a player for xray
 	BanLength: 5d # <- Self explanatory
@@ -43,6 +43,7 @@ function Alert(P: player, Ore: text, VL: string):
 		if loop-player has permission "{@StaffPermission}":
 			if {midnight.%loop-player%.alerts} is set:
 				send formatted "<tooltip:&6&l%{_P}%'s Logs%nl%&7&lVL: &c%{_VL}%%nl%&7&lRecent Ore: &c%{_Ore}%%nl%&5&lClick to teleport><cmd:/tp %{_P}%>{@Prefix} &5%{_P}% &9Mined &5%{_Ore}% &8[&c%{_VL}%&8]" to loop-player
+				log "[Midnight Xray] %{_P}% Mined %{_Ore}% On %now%" to "MidnightXray/%{_P}%.log"
 			else:
 				stop
 
@@ -58,7 +59,7 @@ variables:
 	{netheritemined.%player%} = 0
 	{total.coalmined.%player%} = 0
 	{total.ironmined.%player%} = 0
-	{total.goldmined.%player%} = 0
+	{total.goldmined.%player%} = 0	
 	{total.lapismined.%player%} = 0
 	{total.redstonemined.%player%} = 0
 	{total.diamondmined.%player%} = 0
@@ -183,33 +184,45 @@ every {@ResetVLInterval} minutes:
 			send "{@Prefix} &aCleared ore violations!" to loop-player
 
 #Command
-command /Midnight [<text>]:
+command /Midnight [<text>] [<player>]:
 	permission: {@StaffPermission}
 	permission message: {@PermissionMessage}
 	aliases: /mn
 	trigger:
 		if arg-1 is "alerts":
-			if {midnight.%player%.alerts} is not set: 
-				set {midnight.%player%.alerts} to false 
-				send "{@Prefix} &7You will see alerts now."	
+			if arg-2 is set:
+				send "{@Prefix} &cNo second argument"
 			else:
-				delete {midnight.%player%.alerts} 
-				send "{@Prefix} &7Alerts disabled."
+				if {midnight.%player%.alerts} is not set: 
+					set {midnight.%player%.alerts} to false 
+					send "{@Prefix} &7You will see alerts now."	
+				else:
+					delete {midnight.%player%.alerts} 
+					send "{@Prefix} &7Alerts disabled."
 
 		if arg-1 is "gui":
-			send "{@Prefix} &aComing Soon!" to player
+			if arg-2 is set:
+				set {_main} to a new chest inventory with 3 row with name "&cPlayer Log"
+				set slot 10 of {_main} to paper named "&c&lTotal Ore Mined" with lore "&7&lCoal: &c%{total.coalmined.%arg-2%}%%nl%&7&lIron: &c%{total.ironmined.%arg-2%}%%nl%&7&lGold: &c%{total.goldmined.%arg-2%}%%nl%&7&lRedstone: &c%{total.redstonemined.%arg-2%}%%nl%&7&lLapis: &c%{total.lapismined.%arg-2%}%%nl%&7&lDiamond: &c%{total.diamondmined.%arg-2%}%%nl%&7&lEmerald: &c%{total.emeraldmined.%arg-2%}%%nl%&7&lNetherite: &c%{netheritemined.total.%arg-2%}%"
+				set slot 16 of {_main} to player head named "&c%arg-2%" with lore "&7&lPing: %arg-2's ping%"
 
 		if arg-1 is "info":
-			send "&a&m--------------------------------------------" to player
-			send "&9Midnight &5Xray v{@Version}" to player
-			send "&aCreated by bradleyw8_" to player
-			send "&a&m-------------------------------------------" to player
+			if arg-2 is set:
+				send "{@Prefix} &cNo second argument"
+			else:
+				send "&a&m--------------------------------------------" to player
+				send "&9Midnight &5Xray v{@Version}" to player
+				send "&aCreated by bradleyw8_" to player
+				send "&a&m-------------------------------------------" to player
 		
 		if arg-1 is "reload":
-			execute console command "sk reload %script%"
-			send "{@Prefix} &aReloaded!" to player
+			if arg-2 is set:
+				send "{@Prefix} &cNo second argument"
+			else:
+				execute console command "sk reload %script%"
+				send "{@Prefix} &aReloaded!" to player
 
-		if arg-1 is not set:
+		if arg-1 or arg-2 is not set:
 			send formatted "&a&m----<tooltip:https://www.spigotmc.org/resources/midnight-anti-xray.99767/><link:https://www.spigotmc.org/resources/midnight-anti-xray.99767/>&7[&9Midnight &5Xray&7]<reset>&a&m----&7[&9{@Version}&7]&a&m----" to player
 			send "&a&l/Midnight alerts &8(Toggles Xray Alerts)" to player
 			send "&a&l/Midnight gui &8(Coming soon)" to player
@@ -217,7 +230,12 @@ command /Midnight [<text>]:
 			send "&a&l/Midnight reload &8(Reloads the script)" to player 
 			send formatted "&a&m----<tooltip:https://www.spigotmc.org/resources/midnight-anti-xray.99767/><link:https://www.spigotmc.org/resources/midnight-anti-xray.99767/>&7[&9Midnight &5Xray&7]<reset>&a&m----&7[&9{@Version}&7]&a&m----" to player
 
-
+on inventory click:
+	if name of event-inventory is "&cPlayer Log":
+		if index of event-slot = 10:
+			cancel event
+		if index of event-slot = 16:
+			cancel event
 
 #Load
 on load:
@@ -232,15 +250,11 @@ on join:
 		if {@CheckForUpdates} is true:
 			set {_latestVer} to line 2 from url "{@APILink}"
 			if {_latestVer} is not "{@Version}":
-				loop all players:
-					if loop-player has permission "{@StaffPermission}":
-						send "&a&m----------------------------" to loop-player
-						send "&9Midnight &5Xray &fhas found an update" to loop-player
-						send "<link:https://www.spigotmc.org/resources/midnight-anti-xray.99767/>&c[Click Here to download it]<reset>" to loop-player
-						send "&a&m----------------------------" to loop-player
+				send "&a&m----------------------------" to player
+				send "&9Midnight &5Xray &fhas found an update" to player
+				send "<link:https://www.spigotmc.org/resources/midnight-anti-xray.99767/>&c[Click Here to download it]<reset>" to player
+				send "&a&m----------------------------" to player
 			if {_latestVer} is "{@APILink}":
-				loop all players:
-					if loop-player has permission "{@StaffPermission}":
-						send "{@Prefix} &aNo new updates found" to loop-player
+				send "{@Prefix} &aNo new updates found" to player
 		else if {@CheckForUpdates} is false:
 			stop
