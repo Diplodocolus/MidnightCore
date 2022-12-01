@@ -1,8 +1,8 @@
 #-------------------------------------------
 #
-# Midnight AntiXray v1.3
+# Midnight AntiXRay v1.4
 #
-# Created by bradleyw8_
+# Created by bradleyw8_ and koqel
 # 
 # Reccomended Addons:
 # Skript
@@ -18,12 +18,14 @@
 #-------------------------------------------
 #Options (You Can Edit These!)
 options: # <- Config
-	Version: 1.3 # <- Dont Edit This
+	Version: 1.4 # <- Dont Edit This
 	APILink: https://raw.githubusercontent.com/Diplodocolus/MidnightCore/Master/APIVer.ver # <- DO NOT CHANGE THIS, IT IS REQUIRED FOR AUTO UPDATE
-	Prefix: &9Midnight &5Xray &7» # <- Prefix of the skript
-	GUIPrefix: &9Midnight &5Xray # <- Prefix Of the GUI
-	StaffPermission: Midnight.Staff #S <- taff Permission
-	PermissionMessage: &9Midnight &5Xray &7» &cYou do not have the required permission to use this command! # <- No permission message
+	Prefix: &9Midnight Anti-XRay&7» # <- Prefix of the skript (LEAVE BLACK TO DISABLE)
+	GUIPrefix: &&9Midnight Anti-XRay # <- Prefix Of the GUI
+	primaryColor: &9
+	secondaryColor: &5
+	StaffPermission: midnight.staff #S <- Staff Permission
+	PermissionMessage: &cNo Permission. # <- No permission message
 	CheckForUpdates: true # <- Automatically Checks For Updates
 	ResetVLInterval: 60 # <- Reset ore interval in Minutes
 	AutoBanInterval: 15 # <- Auto ban interval in seconds
@@ -42,8 +44,8 @@ function Alert(P: player, Ore: text, VL: string):
 	loop all players:
 		if loop-player has permission "{@StaffPermission}":
 			if {midnight.%loop-player%.alerts} is set:
-				send formatted "<tooltip:&6&l%{_P}%'s Logs%nl%&7&lVL: &c%{_VL}%%nl%&7&lRecent Ore: &c%{_Ore}%%nl%&5&lClick to teleport><cmd:/tp %{_P}%>{@Prefix} &5%{_P}% &9Mined &5%{_Ore}% &8[&c%{_VL}%&8]" to loop-player
-				log "[Midnight Xray] %{_P}% Mined %{_Ore}% On %now%" to "MidnightXray/%{_P}%.log"
+				send formatted "<tooltip:&6&l%{_P}%'s Logs%nl%&7&lVL: &c%{_VL}%%nl%&7&lRecent Ore: &c%{_Ore}%%nl%&5&lClick to teleport><cmd:/tp %{_P}%>{@Prefix} &5%{_P}% &7Mined &5%{_Ore}% &8[&c%{_VL}%&8]" to loop-player
+				log "{@Prefix} %{_P}% Mined %{_Ore}% On %now%" to "MidnightAntiXRay/%{_P}%.log"
 			else:
 				stop
 
@@ -136,19 +138,19 @@ every {@AutoBanInterval} seconds:
 	if {@AutoBan} is true:
 		loop all players:
 			if {coalmined.%loop-player%} >= {@CoalBanVL}:
-				execute console command "tempban %loop-player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+				execute console command "tempban %loop-player% {@BanLength} {@Prefix} {@primaryColor}XRay has been detected on your client! -s"
 			if {ironmined.%loop-player%} >= {@IronBanVL}:
-				execute console command "tempban %loop-player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+				execute console command "tempban %loop-player% {@BanLength} {@Prefix} {@primaryColor}XRay has been detected on your client! -s"
 			if {goldmined.%loop-player%} >= {@GoldBanVL}:
-				execute console command "tempban %loop-player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"	
+				execute console command "tempban %loop-player% {@BanLength} {@Prefix} {@primaryColor}XRay has been detected on your client! -s"	
 			if {lapismined.%loop-player%} >= {@LapisBanVL}:
-				execute console command "tempban %loop-player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+				execute console command "tempban %loop-player% {@BanLength} {@Prefix} {@primaryColor}XRay has been detected on your client! -s"
 			if {redstonemined.%loop-player%} >= {@RedstoneBanVL}:
-				execute console command "tempban %loop-player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+				execute console command "tempban %loop-player% {@BanLength} {@Prefix} {@primaryColor}XRay has been detected on your client! -s"
 			if {diamondmined.%loop-player%} >= {@DiamondBanVL}:
-				execute console command "tempban %loop-player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+				execute console command "tempban %loop-player% {@BanLength} {@Prefix} {@primaryColor}XRay has been detected on your client! -s"
 			if {emeraldmined.%loop-player%} >= {@EmeraldBanVL}:
-				execute console command "tempban %loop-player% {@BanLength} &8[&9Midnight &5Xray&8] &5Xray has been detected on your client! -s"
+				execute console command "tempban %loop-player% {@BanLength} {@Prefix} {@primaryColor}XRay has been detected on your client! -s"
 	else if {@AutoBan} is false:
 		stop
 #Reset VL
@@ -184,7 +186,7 @@ every {@ResetVLInterval} minutes:
 			send "{@Prefix} &aCleared ore violations!" to loop-player
 
 #Command
-command /Midnight [<text>] [<player>]:
+command /xray [<text>] [<player>]:
 	permission: {@StaffPermission}
 	permission message: {@PermissionMessage}
 	aliases: /mn
@@ -195,10 +197,10 @@ command /Midnight [<text>] [<player>]:
 			else:
 				if {midnight.%player%.alerts} is not set: 
 					set {midnight.%player%.alerts} to false 
-					send "{@Prefix} &7You will see alerts now."	
+					send "{@Prefix} &aYou will see alerts now."	
 				else:
 					delete {midnight.%player%.alerts} 
-					send "{@Prefix} &7Alerts disabled."
+					send "{@Prefix} &cYou will no longer see alerts."
 
 		if arg-1 is "gui":
 			if arg-2 is set:
@@ -212,7 +214,7 @@ command /Midnight [<text>] [<player>]:
 			else:
 				send "&a&m--------------------------------------------" to player
 				send "&9Midnight &5Xray v{@Version}" to player
-				send "&aCreated by bradleyw8_" to player
+				send "&aCreated by bradleyw8_ and koqel" to player
 				send "&a&m-------------------------------------------" to player
 		
 		if arg-1 is "reload":
@@ -224,10 +226,10 @@ command /Midnight [<text>] [<player>]:
 
 		if arg-1 or arg-2 is not set:
 			send formatted "&a&m----<tooltip:https://www.spigotmc.org/resources/midnight-anti-xray.99767/><link:https://www.spigotmc.org/resources/midnight-anti-xray.99767/>&7[&9Midnight &5Xray&7]<reset>&a&m----&7[&9{@Version}&7]&a&m----" to player
-			send "&a&l/Midnight alerts &8(Toggles Xray Alerts)" to player
-			send "&a&l/Midnight gui &8(Coming soon)" to player
-			send "&a&l/Midnight info &8(Shows plugin info)" to player
-			send "&a&l/Midnight reload &8(Reloads the script)" to player 
+			send "&a&l/xray alerts &8(Toggles Xray Alerts)" to player
+			send "&a&l/xray gui &8(Opens a GUI with player info)" to player
+			send "&a&l/xray info &8(Shows plugin info)" to player
+			send "&a&l/xray reload &8(Reloads the script)" to player 
 			send formatted "&a&m----<tooltip:https://www.spigotmc.org/resources/midnight-anti-xray.99767/><link:https://www.spigotmc.org/resources/midnight-anti-xray.99767/>&7[&9Midnight &5Xray&7]<reset>&a&m----&7[&9{@Version}&7]&a&m----" to player
 
 on inventory click:
